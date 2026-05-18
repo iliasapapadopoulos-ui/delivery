@@ -77,85 +77,6 @@
     </style>
 </head>
 <body>
-<!DOCTYPE html>
-<html lang="el">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Delivery App - Seamless Voice Input</title>
-    <style>
-        body { font-family: sans-serif; background: #1a202c; padding: 15px; color: #e2e8f0; padding-bottom: 90px; display: flex; flex-direction: column; align-items: center; }
-        .app-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; }
-        .mode-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
-        .selector-btn { height: 50px; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: bold; color: white; cursor: pointer; background: #4a5568; border: 1px solid #718096; }
-        .selector-btn.active { background: #805ad5; border-color: #9f7aea; }
-        
-        /* Μαύρο πλαίσιο με μοβ περίγραμμα */
-        .input-panel { background: #000000; padding: 20px; border-radius: 12px; width: 100%; box-sizing: border-box; border: 2px solid #805ad5; }
-        
-        .btn-mic { width: 100%; height: 65px; background: #805ad5; color: white; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; }
-        .btn-mic.listening { background: #e53e3e; animation: pulse 1.2s infinite; }
-        .instructions-box { margin-top: 15px; background: #1a202c; padding: 12px; border-radius: 8px; border-left: 4px solid #805ad5; font-size: 0.9rem; }
-        .instructions-box ol { padding-left: 20px; margin: 5px 0 0 0; color: #cbd5e0; }
-        .status-text { margin-top: 10px; font-size: 0.95rem; color: #ecc94b; font-style: italic; text-align: center; font-weight: bold; }
-        
-        .manual-form { display: none; flex-direction: column; gap: 12px; }
-        .input-field { width: 100%; height: 45px; padding: 0 12px; box-sizing: border-box; border: 2px solid #4a5568; background: #1a202c; color: white; border-radius: 10px; font-size: 1.1rem; outline: none; }
-        .input-field::placeholder { color: #a0aec0; }
-        
-        /* Πάνελ συμπλήρωσης ποσού μετά τη φωνή */
-        .voice-price-step { display: none; flex-direction: column; gap: 12px; margin-top: 15px; border-top: 1px solid #4a5568; padding-top: 15px; }
-        
-        .quick-pay-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .btn-quick-pay { height: 55px; border: none; border-radius: 12px; font-size: 1.3rem; font-weight: 900; color: white; cursor: pointer; }
-        .btn-card-trigger { background: #2b6cb0; }
-        .btn-cash-trigger { background: #2f855a; }
-        
-        .section-title { font-size: 1.4rem; font-weight: bold; margin: 10px 0; color: #fff; width: 100%; border-bottom: 2px solid #4a5568; padding-bottom: 8px; }
-        .list-container { width: 100%; display: flex; flex-direction: column; gap: 12px; }
-        .app-page { display: none; width: 100%; flex-direction: column; gap: 15px; }
-        .app-page.active-page { display: flex; }
-        
-        .order-card { background: #2d3748; padding: 20px; border-radius: 12px; border: 1px solid #4a5568; box-sizing: border-box; }
-        .order-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .address-title { font-size: 1.3rem; font-weight: bold; color: #fff; max-width: 70%; }
-        .pay-badge { padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; text-transform: uppercase; }
-        .pay-cash { background: #2f855a; color: white; }
-        .pay-card { background: #2b6cb0; color: white; }
-        .info-text { font-size: 17px; margin: 6px 0; color: #cbd5e0; }
-        
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn { display: flex; align-items: center; justify-content: center; height: 50px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; color: white; text-decoration: none; cursor: pointer; }
-        .btn-maps { background: #1a73e8; }
-        .btn-speak { background: #4a5568; border: 1px solid #718096; }
-        
-        .manage-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; border-top: 1px solid #4a5568; padding-top: 10px; }
-        .btn-done { background: #2f855a; height: 40px; }
-        .btn-cancel { background: #9b2c2c; height: 40px; }
-        
-        .history-card { background: #2d3748; padding: 12px; border-radius: 8px; border-left: 5px solid #3182ce; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; }
-        .history-time { font-size: 0.8rem; color: #a0aec0; margin-top: 4px; }
-        .history-total-panel { background: #2d3748; padding: 15px; border-radius: 12px; border: 1px solid #4a5568; display: flex; flex-direction: column; gap: 10px; }
-        .register-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .register-title { font-size: 1.1rem; color: #a0aec0; font-weight: bold; }
-        .register-amount { font-size: 1.4rem; color: #48bb78; font-weight: 800; }
-        .btn-reset-shift { width: 100%; height: 45px; background: #e53e3e; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem; cursor: pointer; }
-        
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #2d3748; border-top: 2px solid #4a5568; padding: 10px 0; display: flex; justify-content: space-around; max-width: 420px; margin: 0 auto; z-index: 200; }
-        .nav-item { background: none; border: none; color: #a0aec0; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 33%; }
-        .nav-item.active-nav { color: #805ad5; }
-        
-        /* Modals Structure */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 500; justify-content: center; align-items: center; padding: 20px; }
-        .modal-box { background: #000000; padding: 20px; border-radius: 12px; border: 2px solid #805ad5; width: 100%; max-width: 350px; text-align: center; display: flex; flex-direction: column; gap: 14px; box-sizing: border-box; }
-        .modal-title { font-size: 1.3rem; font-weight: bold; color: #fff; text-align: center; }
-        .modal-btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .modal-btn { height: 55px; border: none; border-radius: 10px; font-size: 1.2rem; font-weight: bold; color: white; cursor: pointer; }
-        .btn-export-sheets { width: 100%; height: 55px; background: #38a169; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-    </style>
-</head>
-<body>
 
     <div class="app-container">
         <!-- 📦 ΟΘΟΝΗ 1: ΠΑΡΑΓΓΕΛΙΕΣ -->
@@ -172,7 +93,7 @@
                     <div class="instructions-box">
                         <ol>
                             <li>Πείτε μόνο: <strong>Διεύθυνση</strong></li>
-                            <li>Πληκτρολογήστε ποσό και πάτα POS ή Μετρητά.</li>
+                            <li>Πληκτρολόγεσε ποσό και πάτα POS ή Μετρητά.</li>
                         </ol>
                     </div>
                     <div class="status-text" id="speech-output">Πατήστε το κουμπί για να ξεκινήσετε.</div>
@@ -241,7 +162,6 @@
             <button class="btn-export-sheets" style="margin-top: 15px;" onclick="exportToCSV()">📊 Εξαγωγή σε CSV / Excel</button>
         </div>
     </div>
-
     <!-- 🧭 ΜΠΑΡΑ ΠΛΟΗΓΗΣΗΣ -->
     <nav class="bottom-nav">
         <button class="nav-item active-nav" id="nav-orders" onclick="navigateTo('orders')">📦 <span>Παραγγελίες</span></button>
@@ -272,6 +192,7 @@
             </div>
         </div>
     </div>
+
     <script>
         let orders = JSON.parse(localStorage.getItem('delivery_orders')) || [];
         let isListening = false;
@@ -374,6 +295,7 @@
                     <button class="modal-btn" style="background: #2b6cb0;" onclick="submitTips('Στο Τέλος')">Στο Τέλος</button>
                 `;
             }
+
             document.getElementById('tips-modal').style.display = 'flex';
             
             setTimeout(() => {
@@ -423,7 +345,10 @@
             }
             recognition = new SpeechRecognition();
             recognition.continuous = false;
+            
+            // 🛠️ ΕΔΩ ΚΛΕΙΔΩΝΟΥΜΕ ΤΑ ΕΛΛΗΝΙΚΑ ΣΕ ΚΑΘΕ ΣΥΣΚΕΥΗ
             recognition.lang = 'el-GR'; 
+            
             recognition.interimResults = false;
 
             recognition.onstart = () => {
@@ -490,7 +415,7 @@
                             </div>
                             <div class="info-text">💰 Ποσό: <strong>${order.price.toFixed(2)} €</strong></div>
                             <div class="btn-group">
-                                <button class="btn btn-maps" onclick="openAndroidNavigation('${order.address.replace(/'/g, "\\'")}')">🗺️ Χάρτης</button>
+                                <a class="btn btn-maps" href="https://google.com{encodeURIComponent(order.address)}" target="_blank">🗺️ Χάρτης</a>
                                 <button class="btn btn-speak" onclick="speakOrder('${order.address.replace(/'/g, "\\'")}')">🔊 Εκφώνηση</button>
                             </div>
                             <div class="manage-group">
@@ -539,16 +464,19 @@
         function closeResetModal() { document.getElementById('reset-modal').style.display = 'none'; }
         function resetShift() { orders = []; saveOrders(); closeResetModal(); navigateTo('orders'); }
 
-        function openAndroidNavigation(address) {
-            if (!address) return alert("Δεν υπάρχει έγκυρη διεύθυνση.");
-            const encodedAddress = encodeURIComponent(address);
-            window.location.href = `google.navigation:q=${encodedAddress}`;
-        }
-
         function exportToCSV() {
             if (orders.length === 0) return alert("Δεν υπάρχουν παραγγελίες.");
             let csvContent = "\uFEFFΔιεύθυνση;Ποσό;Πληρωμή;Tips;Τύπος Tips;Κατάσταση;Ώρα\n";
             orders.forEach(o => {
                 const statusText = o.status === 'done' ? 'Παραδόθηκε' : 'Ακυρώθηκε';
                 csvContent += `"${o.address}";"${o.price.toFixed(2)}";"${o.payment}";"${o.tip.toFixed(2)}";"${o.tipType}";"${statusText}";"${o.timestamp}"\n`;
-            
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `shift_report_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+        }
+    </script>
+</body>
+</html>
