@@ -1,104 +1,4 @@
 
-    <div class="app-container">
-        <!-- 📦 ΟΘΟΝΗ 1: ΠΑΡΑΓΓΕΛΙΕΣ -->
-        <div id="page-orders" class="app-page active-page">
-            <div class="mode-selector">
-                <button class="selector-btn active" id="mode-voice" onclick="switchMode('voice')">🎤 Φωνή</button>
-                <button class="selector-btn" id="mode-manual" onclick="switchMode('manual')">⌨️ Πληκτρολόγηση</button>
-            </div>
-            
-            <div class="input-panel">
-                <!-- ΦΩΝΗΤΙΚΗ ΕΙΣΑΓΩΓΗ -->
-                <div id="voice-container">
-                    <button class="btn-mic" id="mic-btn" onclick="toggleListening()">🎤 Εκφώνηση Διεύθυνσης</button>
-                    <div class="instructions-box">
-                        <ol>
-                            <li>Πείτε μόνο: <strong>Διεύθυνση</strong></li>
-                            <li>Πληκτρολόγεσε ποσό και πάτα POS ή Μετρητά.</li>
-                        </ol>
-                    </div>
-                    <div class="status-text" id="speech-output">Πατήστε το κουμπί για να ξεκινήσετε.</div>
-                    
-                    <!-- Πίνακας Ποσού -->
-                    <div id="voice-price-panel" class="voice-price-step">
-                        <input type="text" inputmode="decimal" id="voice-form-price" class="input-field" placeholder="Εισάγετε Ποσό (π.χ. 12.50)" style="border-color: #805ad5;">
-                        <div class="quick-pay-group">
-                            <button class="btn-quick-pay btn-card-trigger" onclick="submitVoiceOrder('POS')">POS</button>
-                            <button class="btn-quick-pay btn-cash-trigger" onclick="submitVoiceOrder('Μετρητά')">Μετρητά</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- ΧΕΙΡΟΚΙΝΗΤΗ ΕΙΣΑΓΩΓΗ -->
-                <div id="manual-container" class="manual-form">
-                    <input type="text" id="form-address" class="input-field" placeholder="Διεύθυνση (π.χ. Παύλου Μελά 22)">
-                    <input type="text" inputmode="decimal" id="form-price" class="input-field" placeholder="Ποσό Παραγγελίας (π.χ. 17.57)">
-                    <div class="quick-pay-group">
-                        <button class="btn-quick-pay btn-card-trigger" onclick="submitQuickManual('POS')">POS</button>
-                        <button class="btn-quick-pay btn-cash-trigger" onclick="submitQuickManual('Μετρητά')">Μετρητά</button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="section-title">Ενεργές Παραγγελίες</div>
-            <div id="active-orders-list" class="list-container"></div>
-        </div>
-
-        <!-- 💰 ΟΘΟΝΗ 2: ΤΑΜΕΙΟ -->
-        <div id="page-register" class="app-page">
-            <div class="section-title">Σύνολα Βάρδιας</div>
-            <div class="history-total-panel">
-                <div class="register-row">
-                    <span class="register-title" style="color: #ecc94b;">Παραδόσεις (Σύνολο):</span>
-                    <span class="register-amount" id="total-orders-count" style="color: #ecc94b;">0</span>
-                </div>
-                <div class="register-row">
-                    <span class="register-title">Μετρητά στο χέρι:</span>
-                    <span class="register-amount" id="total-cash">0.00 €</span>
-                </div>
-                <div class="register-row">
-                    <span class="register-title">Κάρτες (POS):</span>
-                    <span class="register-amount" id="total-cards" style="color: #4299e1;">0.00 €</span>
-                </div>
-                <div class="register-row" style="border-top: 1px solid #4a5568; padding-top: 5px;">
-                    <span class="register-title" style="color: #a0aec0; font-size: 0.95rem;">Tips (Χεράτο):</span>
-                    <span class="register-amount" id="total-tips-xerato" style="color: #cbd5e0; font-size: 1.2rem;">0.00 €</span>
-                </div>
-                <div class="register-row">
-                    <span class="register-title" style="color: #a0aec0; font-size: 0.95rem;">Tips (Στο Τέλος):</span>
-                    <span class="register-amount" id="total-tips-telos" style="color: #cbd5e0; font-size: 1.2rem;">0.00 €</span>
-                </div>
-                <div class="register-row" style="border-top: 2px solid #4a5568; padding-top: 10px;">
-                    <span class="register-title" style="color: #fff;">Ποσό Παράδοσης:</span>
-                    <span class="register-amount" id="total-all" style="color: #48bb78;">0.00 €</span>
-                </div>
-            </div>
-            <button class="btn-reset-shift" style="margin-top: 15px;" onclick="confirmResetShift()">🔴 Μηδενισμός Βάρδιας (Χ)</button>
-        </div>
-
-        <!-- 📜 ΟΘΟΝΗ 3: ΙΣΤΟΡΙΚΟ -->
-        <div id="page-history" class="app-page">
-            <div class="section-title">Ιστορικό Παραγγελμάτων</div>
-            <div id="history-list" class="list-container"></div>
-            <button class="btn-export-sheets" style="margin-top: 15px;" onclick="exportToCSV()">📊 Εξαγωγή σε CSV / Excel</button>
-        </div>
-    </div>
-        function renderApp() {
-            const activeList = document.getElementById('active-orders-list');
-            const historyList = document.getElementById('history-list');
-            
-            if (activeList) activeList.innerHTML = '';
-            if (historyList) historyList.innerHTML = '';
-
-            let cashTotal = 0;
-            let cardTotal = 0;
-            let tipsXerato = 0;
-            let tipsTelos = 0;
-            let deliveredCount = 0;
-
-            for (let i = orders.length - 1; i >= 0; i--) {
-                const order = orders[i];
-
                 if (order.status === 'done') {
                     deliveredCount++;
                     if (order.payment === 'Μετρητά') cashTotal += order.price;
@@ -112,10 +12,6 @@
                     if (activeList) {
                         const card = document.createElement('div');
                         card.className = 'order-card';
-                        
-                        // 🤖 Android Intent Link για εξαναγκαστικό άνοιγμα της εφαρμογής Google Maps
-                        const androidMapsUrl = `intent://://google.com{encodeURIComponent(order.address)}#Intent;scheme=http;package=com.google.android.apps.maps;end;`;
-                        
                         card.innerHTML = `
                             <div class="order-header">
                                 <div class="address-title">${order.address}</div>
@@ -123,7 +19,7 @@
                             </div>
                             <div class="info-text">💰 Ποσό: <strong>${order.price.toFixed(2)} €</strong></div>
                             <div class="btn-group">
-                                <a class="btn btn-maps" href="${androidMapsUrl}">🗺️ Χάρτης</a>
+                                <a class="btn btn-maps" href="geo:0,0?q=${encodeURIComponent(order.address)}">🗺️ Χάρτης</a>
                                 <button class="btn btn-speak" onclick="speakOrder('${order.address.replace(/'/g, "\\'")}')">🔊 Εκφώνηση</button>
                             </div>
                             <div class="manage-group">
@@ -167,3 +63,24 @@
             
             if (tall) tall.innerText = `${(cashTotal - tipsTelos).toFixed(2)} €`;
         }
+
+        function confirmResetShift() { document.getElementById('reset-modal').style.display = 'flex'; }
+        function closeResetModal() { document.getElementById('reset-modal').style.display = 'none'; }
+        function resetShift() { orders = []; saveOrders(); closeResetModal(); navigateTo('orders'); }
+
+        function exportToCSV() {
+            if (orders.length === 0) return alert("Δεν υπάρχουν παραγγελίες.");
+            let csvContent = "\uFEFFΔιεύθυνση;Ποσό;Πληρωμή;Tips;Τύπος Tips;Κατάσταση;Ώρα\n";
+            orders.forEach(o => {
+                const statusText = o.status === 'done' ? 'Παραδόθηκε' : 'Ακυρώθηκε';
+                csvContent += `"${o.address}";"${o.price.toFixed(2)}";"${o.payment}";"${o.tip.toFixed(2)}";"${o.tipType}";"${statusText}";"${o.timestamp}"\n`;
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `shift_report_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+        }
+    </script>
+</body>
+</html>
