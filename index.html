@@ -77,7 +77,6 @@
     </style>
 </head>
 <body>
-
     <div class="app-container">
         <!-- 📦 ΟΘΟΝΗ 1: ΠΑΡΑΓΓΕΛΙΕΣ -->
         <div id="page-orders" class="app-page active-page">
@@ -291,7 +290,7 @@
                 btnGroup.innerHTML = `<button class="modal-btn" style="background: #2f855a; grid-column: span 2;" onclick="submitTips('Χεράτο')">Χεράτο</button>`;
             } else {
                 btnGroup.innerHTML = `
-                    <button class="modal-btn" style="background: #2f855a;" onclick="submitTips('Χεράτο')">Χεράτο</button>
+                    <button class="modal-btn" style="background: #2f855a;" onclick="submitTips('Χεράто')">Χεράτο</button>
                     <button class="modal-btn" style="background: #2b6cb0;" onclick="submitTips('Στο Τέλος')">Στο Τέλος</button>
                 `;
             }
@@ -406,7 +405,6 @@
                         const card = document.createElement('div');
                         card.className = 'order-card';
                         
-                        // 🛠️ ΕΔΩ ΔΙΟΡΘΩΘΗΚΕ ΤΟ LINK ΜΕ ΣΩΣΤΟ ENCODE ΓΙΑ ΝΑ ΠΑΙΖΕΙ ΠΑΝΤΑ
                         card.innerHTML = `
                             <div class="order-header">
                                 <div class="address-title">${order.address}</div>
@@ -414,7 +412,7 @@
                             </div>
                             <div class="info-text">💰 Ποσό: <strong>${order.price.toFixed(2)} €</strong></div>
                             <div class="btn-group">
-                                <a class="btn btn-maps" href="https://google.com` + encodeURIComponent(order.address) + `" target="_blank">🗺️ Χάρτης</a>
+                                <a class="btn btn-maps" href="https://google.com"` + encodeURIComponent(order.address) + `" target="_blank">🗺️ Χάρτης</a>
                                 <button class="btn btn-speak" onclick="speakOrder('${order.address.replace(/'/g, "\\'")}')">🔊 Εκφώνηση</button>
                             </div>
                             <div class="manage-group">
