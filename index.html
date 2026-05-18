@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Πλοήγηση με Διεύθυνση</title>
+    <title>Android Google Maps Navigation</title>
     <style>
         body { 
             background: #1a202c; 
@@ -47,38 +47,30 @@
             max-width: 300px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        .nav-btn:active {
-            background: #155cb4;
-        }
     </style>
 </head>
 <body>
 
     <!-- Πλαίσιο εισαγωγής διεύθυνσης -->
-    <input type="text" id="addressInput" class="search-box" placeholder="Γράψε διεύθυνση ή πόλη..." autocomplete="off">
+    <input type="text" id="addressInput" class="search-box" placeholder="Γράψε διεύθυνση..." autocomplete="off">
 
-    <!-- Κουμπί για έναρξη πλοήγησης -->
-    <button class="nav-btn" onclick="startNavigation()">🚀 Έναρξη Πλοήγησης</button>
+    <!-- Κουμπί για αποκλειστικό άνοιγμα στο Android Maps App -->
+    <button class="nav-btn" onclick="openAndroidMaps()">🚀 Έναρξη Πλοήγησης</button>
 
     <script>
-        function startNavigation() {
-            // Παίρνουμε το κείμενο που έγραψε ο χρήστης
+        function openAndroidMaps() {
             const address = document.getElementById('addressInput').value.trim();
             
-            // Αν το πλαίσιο είναι άδειο, σταματάμε και ενημερώνουμε τον χρήστη
             if (address === "") {
                 alert("Παρακαλώ πληκτρολόγησε μια διεύθυνση πρώτα!");
                 return;
             }
             
-            // Μετατρέπουμε το κείμενο σε ασφαλή μορφή URL (π.χ. τα κενά γίνονται %20)
+            // Κωδικοποίηση της διεύθυνσης για ασφαλή μεταφορά
             const encodedAddress = encodeURIComponent(address);
             
-            // Δημιουργούμε το Universal Link της Google για απευθείας πλοήγηση (Directions)
-            const mapsUrl = `https://google.com{encodedAddress}`;
-            
-            // Ανοίγουμε τον σύνδεσμο σε νέα καρτέλα (ή στην εφαρμογή Maps του κινητού)
-            window.open(mapsUrl, '_blank');
+            // Το ειδικό URI Scheme που αναγκάζει ΜΟΝΟ το Android Google Maps App να ανοίξει
+            window.location.href = `google.navigation:q=${encodedAddress}`;
         }
     </script>
 
