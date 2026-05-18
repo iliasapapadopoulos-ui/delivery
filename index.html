@@ -5,21 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Τεστ Χάρτη</title>
     <style>
-        body { background: #1a202c; color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif; gap: 20px; }
-        .test-btn { background: #1a73e8; color: white; font-size: 1.2rem; font-weight: bold; border: none; padding: 20px 40px; border-radius: 12px; cursor: pointer; text-decoration: none; text-align: center; width: 280px; }
-        .btn-alt { background: #34a853; }
+        body { 
+            background: #1a202c; 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+            font-family: sans-serif; 
+            gap: 20px; 
+        }
+        .test-btn { 
+            color: white; 
+            font-size: 1.2rem; 
+            font-weight: bold; 
+            border: none; 
+            padding: 20px 40px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            text-decoration: none; 
+            text-align: center; 
+            width: 280px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .blue-btn { background: #1a73e8; }
+        .green-btn { background: #34a853; }
     </style>
 </head>
 <body>
 
-    <!-- ΔΟΚΙΜΗ 1: Αναγκαστικό άνοιγμα της εφαρμογής (Native App Link) -->
-    <a class="test-btn" href="geo:40.7272,22.9157?q=40.7272,22.9157(Ωραιόκαστρο)">
-        📱 Κουμπί 1: Άνοιγμα Εφαρμογής
+    <!-- ΚΟΥΜΠΙ 1: Άνοιγμα κατευθείαν στην εφαρμογή Maps του κινητού -->
+    <a class="test-btn blue-btn" href="geo:40.7272,22.9157?q=40.7272,22.9157(Ωραιόκαστρο)">
+        📱 Άνοιγμα σε Εφαρμογή
     </a>
 
-    <!-- ΔΟΚΙΜΗ 2: Εναλλακτικό κλασικό link πλοήγησης -->
-    <a class="test-btn btn-alt" href="https://google.com" target="_blank">
-        🌐 Κουμπί 2: Κλασικό Maps Link
+    <!-- ΚΟΥΜΠΙ 2: Άνοιγμα στον Browser ή μέσω Web Link -->
+    <a class="test-btn green-btn" href="https://google.com" target="_blank">
+        🌐 Άνοιγμα σε Browser
     </a>
 
 </body>
