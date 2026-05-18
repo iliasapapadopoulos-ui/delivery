@@ -345,7 +345,10 @@
             }
             recognition = new SpeechRecognition();
             recognition.continuous = false;
-            recognition.lang = 'el-GR';
+            
+            // 🛠️ ΕΔΩ ΚΛΕΙΔΩΝΟΥΜΕ ΤΑ ΕΛΛΗΝΙΚΑ ΣΕ ΚΑΘΕ ΣΥΣΚΕΥΗ
+            recognition.lang = 'el-GR'; 
+            
             recognition.interimResults = false;
 
             recognition.onstart = () => {
