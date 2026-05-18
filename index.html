@@ -345,10 +345,7 @@
             }
             recognition = new SpeechRecognition();
             recognition.continuous = false;
-            
-            // 🛠️ ΕΔΩ ΚΛΕΙΔΩΝΟΥΜΕ ΤΑ ΕΛΛΗΝΙΚΑ ΣΕ ΚΑΘΕ ΣΥΣΚΕΥΗ
             recognition.lang = 'el-GR'; 
-            
             recognition.interimResults = false;
 
             recognition.onstart = () => {
@@ -408,6 +405,8 @@
                     if (activeList) {
                         const card = document.createElement('div');
                         card.className = 'order-card';
+                        
+                        // 🛠️ ΕΔΩ ΔΙΟΡΘΩΘΗΚΕ ΤΟ ΣΦΑΛΜΑ ΓΙΑ ΤΟΝ ΧΑΡΤΗ ΜΕ ΤΑ ΣΩΣΤΑ ΕΙΣΑΓΩΓΙΚΑ ΚΑΙ ENCODE
                         card.innerHTML = `
                             <div class="order-header">
                                 <div class="address-title">${order.address}</div>
@@ -415,7 +414,7 @@
                             </div>
                             <div class="info-text">💰 Ποσό: <strong>${order.price.toFixed(2)} €</strong></div>
                             <div class="btn-group">
-                                <a class="btn btn-maps" href="https://google.com{encodeURIComponent(order.address)}" target="_blank">🗺️ Χάρτης</a>
+                                <a class="btn btn-maps" href="https://google.com` + encodeURIComponent(order.address) + `" target="_blank">🗺️ Χάρτης</a>
                                 <button class="btn btn-speak" onclick="speakOrder('${order.address.replace(/'/g, "\\'")}')">🔊 Εκφώνηση</button>
                             </div>
                             <div class="manage-group">
