@@ -5,15 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Τεστ Χάρτη</title>
     <style>
-        body { background: #1a202c; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif; }
-        .test-btn { background: #1a73e8; color: white; font-size: 1.4rem; font-weight: bold; border: none; padding: 20px 40px; border-radius: 12px; cursor: pointer; text-decoration: none; text-align: center; }
+        body { background: #1a202c; color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif; gap: 20px; }
+        .test-btn { background: #1a73e8; color: white; font-size: 1.2rem; font-weight: bold; border: none; padding: 20px 40px; border-radius: 12px; cursor: pointer; text-decoration: none; text-align: center; width: 280px; }
+        .btn-alt { background: #34a853; }
     </style>
 </head>
 <body>
 
-    <!-- Το κουμπί τώρα περιέχει το επίσημο Universal Link για τα Google Maps -->
-    <a class="test-btn" href="https://google.com" target="_blank">
-        🗺️ Δοκιμή Χάρτη (Ωραιόκαστρο)
+    <!-- ΔΟΚΙΜΗ 1: Αναγκαστικό άνοιγμα της εφαρμογής (Native App Link) -->
+    <a class="test-btn" href="geo:40.7272,22.9157?q=40.7272,22.9157(Ωραιόκαστρο)">
+        📱 Κουμπί 1: Άνοιγμα Εφαρμογής
+    </a>
+
+    <!-- ΔΟΚΙΜΗ 2: Εναλλακτικό κλασικό link πλοήγησης -->
+    <a class="test-btn btn-alt" href="https://google.com" target="_blank">
+        🌐 Κουμπί 2: Κλασικό Maps Link
     </a>
 
 </body>
