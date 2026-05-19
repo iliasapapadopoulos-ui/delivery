@@ -37,8 +37,8 @@
             margin-bottom: 16px;
         }
         
-        /* Κοινό στυλ για όλα τα μεγάλα κουμπιά */
-        button, .btn-navigate {
+        /* Κοινό στυλ για τα πάνω μεγάλα κουμπιά και το κουμπί πλοήγησης */
+        .btn-main, .btn-navigate {
             padding: 20px 0;
             border: none;
             border-radius: 12px;
@@ -76,7 +76,7 @@
             width: 100%;
         }
 
-        input[type="text"], input[type="number"] {
+        input[type="text"] {
             width: 100%;
             padding: 18px;
             border: 2.5px solid #007bff;
@@ -86,54 +86,64 @@
             color: white;
         }
 
+        /* Πλέγμα 4 στηλών σε μία γραμμή με αναλογίες 2/9, 2/9, 2/9, 3/9 */
+        .interaction-menu {
+            display: none;
+            grid-template-columns: 2fr 2fr 2fr 3fr; /* Οι αναλογίες των στηλών */
+            gap: 8px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .menu-col {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .menu-label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #e0e0e0;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Στυλ εισαγωγής αριθμών για τις στήλες */
+        input[type="number"] {
+            width: 100%;
+            padding: 14px 4px;
+            border: 1px solid #555555;
+            border-radius: 10px;
+            font-size: 16px;
+            background-color: #111111;
+            color: white;
+            text-align: center;
+        }
+
+        /* Το μικρότερο κουμπί εναλλαγής Χέρι/Τέλος */
+        .btn-toggle {
+            width: 100%;
+            padding: 14px 0;
+            background-color: #ffc107;
+            color: #212529;
+            font-size: 15px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
         /* Το κουμπί πλοήγησης */
         .btn-navigate {
             background-color: #28a745;
             color: white;
             width: 100%;
             display: none;
-            margin-bottom: 24px;
-        }
-
-        /* Κρυφό μενού αλληλεπίδρασης - Εμφανίζεται μετά την πλοήγηση */
-        .interaction-menu {
-            display: none;
-            flex-direction: column;
-            gap: 16px;
-            margin-top: 10px;
-        }
-
-        .menu-row {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .menu-label {
-            font-size: 18px;
-            font-weight: bold;
-            color: #e0e0e0;
-        }
-
-        /* Ειδική διάταξη για τα Tips με το κουμπί δίπλα */
-        .tips-container {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .tips-container input {
-            flex: 2;
-        }
-
-        .btn-toggle {
-            flex: 1;
-            padding: 16px 0;
-            background-color: #ffc107;
-            color: #212529;
-            font-size: 18px;
-            border-radius: 12px;
-            font-weight: bold;
         }
     </style>
 </head>
@@ -142,8 +152,8 @@
 <div class="app-container">
     <!-- 1. Τα δύο πλήκτρα δίπλα-δίπλα -->
     <div class="top-row">
-        <button class="btn-voice" id="voiceBtn">🎤 Φωνή</button>
-        <button class="btn-keyboard" id="keyboardBtn">⌨️ Πλήκτρα</button>
+        <button class="btn-main btn-voice" id="voiceBtn">🎤 Φωνή</button>
+        <button class="btn-main btn-keyboard" id="keyboardBtn">⌨️ Πλήκτρα</button>
     </div>
 
     <!-- 2. Η εισαγωγή διεύθυνσης από κάτω -->
@@ -151,34 +161,37 @@
         <input type="text" id="addressInput" placeholder="Εισάγετε διεύθυνση...">
     </div>
 
-    <!-- 3. Η έναρξη πλοήγησης -->
-    <button class="btn-navigate" id="navigateBtn">🚀 Έναρξη Πλοήγησης</button>
-
-    <!-- 4. Νέο Μενού Αλληλεπίδρασης -->
+    <!-- 3. Το Μενού Αλληλεπίδρασης σε 1 Γραμμή / 4 Στήλες (2/9, 2/9, 2/9, 3/9) -->
     <div class="interaction-menu" id="interactionMenu">
         
-        <!-- Πεδίο Μετρητά -->
-        <div class="menu-row">
-            <span class="menu-label">💵 Μετρητά</span>
-            <input type="number" id="cashInput" placeholder="0.00" step="0.01" min="0" max="99.99" oninput="validateAmount(this)">
-        </div>
-
-        <!-- Πεδίο Κάρτα -->
-        <div class="menu-row">
+        <!-- Στήλη 1: Κάρτα (2/9) -->
+        <div class="menu-col">
             <span class="menu-label">💳 Κάρτα</span>
             <input type="number" id="cardInput" placeholder="0.00" step="0.01" min="0" max="99.99" oninput="validateAmount(this)">
         </div>
 
-        <!-- Πεδίο Tips + Επιλογή Χέρι/Τέλος -->
-        <div class="menu-row">
+        <!-- Στήλη 2: Tips (2/9) -->
+        <div class="menu-col">
             <span class="menu-label">🪙 Tips</span>
-            <div class="tips-container">
-                <input type="number" id="tipsInput" placeholder="0.00" step="0.01" min="0" max="99.99" oninput="validateAmount(this)">
-                <button class="btn-toggle" id="toggleBtn">Χέρι</button>
-            </div>
+            <input type="number" id="tipsInput" placeholder="0.00" step="0.01" min="0" max="99.99" oninput="validateAmount(this)">
+        </div>
+
+        <!-- Στήλη 3: Χέρι / Τέλος (2/9) -->
+        <div class="menu-col">
+            <span class="menu-label">⚙️</span>
+            <button class="btn-toggle" id="toggleBtn">Χέρι</button>
+        </div>
+
+        <!-- Στήλη 4: Μετρητά (3/9) -->
+        <div class="menu-col">
+            <span class="menu-label">💵 Μετρητά</span>
+            <input type="number" id="cashInput" placeholder="0.00" step="0.01" min="0" max="99.99" oninput="validateAmount(this)">
         </div>
 
     </div>
+
+    <!-- 4. Η έναρξη πλοήγησης -->
+    <button class="btn-navigate" id="navigateBtn">🚀 Έναρξη Πλοήγησης</button>
 </div>
 
 <script>
@@ -186,8 +199,8 @@
     const keyboardBtn = document.getElementById('keyboardBtn');
     const inputContainer = document.getElementById('inputContainer');
     const addressInput = document.getElementById('addressInput');
-    const navigateBtn = document.getElementById('navigateBtn');
     const interactionMenu = document.getElementById('interactionMenu');
+    const navigateBtn = document.getElementById('navigateBtn');
     const toggleBtn = document.getElementById('toggleBtn');
 
     // Περιορισμός εισαγωγής έως 99.99 και έως 2 δεκαδικά ψηφία
@@ -198,7 +211,7 @@
         }
         if (input.value.includes('.')) {
             const parts = input.value.split('.');
-            if (parts[1].length > 2) {
+            if (parts.length > 2) {
                 input.value = val.toFixed(2);
             }
         }
@@ -231,11 +244,9 @@
         };
 
         recognition.onresult = (event) => {
-            const transcript = event.results.transcript;
+            const transcript = event.results[0][0].transcript;
             addressInput.value = transcript;
-            
-            inputContainer.style.display = "block";
-            navigateBtn.style.display = "block";
+            showRemainingUI();
         };
 
         recognition.onerror = () => { resetVoiceButton(); };
@@ -249,24 +260,24 @@
         voiceBtn.textContent = "🎤 Φωνή";
     }
 
+    function showRemainingUI() {
+        inputContainer.style.display = "block";
+        interactionMenu.style.display = "grid"; /* Ενεργοποίηση CSS Grid */
+        navigateBtn.style.display = "block";
+    }
+
     voiceBtn.addEventListener('click', () => {
         if (SpeechRecognition) { recognition.start(); }
     });
 
     keyboardBtn.addEventListener('click', () => {
-        inputContainer.style.display = "block";
-        navigateBtn.style.display = "block";
+        showRemainingUI();
         addressInput.focus();
     });
 
-    // Πάτημα "Έναρξη Πλοήγησης" -> Άνοιγμα Χαρτών & Εμφάνιση Νέου Μενού
     navigateBtn.addEventListener('click', () => {
         const address = addressInput.value.trim();
         if (address !== "") {
-            // Εμφάνιση του μενού εισαγωγής ποσών
-            interactionMenu.style.display = "flex";
-            
-            // Άνοιγμα Google Maps
             window.location.href = `google.navigation:q=${encodeURIComponent(address)}`;
         }
     });
