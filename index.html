@@ -1,101 +1,318 @@
-let currentAddress = "";
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery App</title>
+    <style>
+        /* 1. Φόντο στα 8/10 του μαύρου (80% Black / #1a1a1a) */
+        body {
+            background-color: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
 
-// Εναλλαγή Φωνής / Πλήκτρων
-function setMode(mode) {
-    const btnVoice = document.getElementById('btn-voice');
-    const btnKeys = document.getElementById('btn-keys');
-    const voiceUI = document.getElementById('voice-ui');
-    const keysUI = document.getElementById('keys-ui');
+        /* Τοποθέτηση των κουμπιών στα 3 εκατοστά κάτω από την κορυφή */
+        .top-spacer {
+            height: 3cm;
+        }
 
-    if (mode === 'voice') {
-        btnVoice.classList.add('active');
-        btnKeys.classList.remove('active');
-        voiceUI.style.display = 'block';
-        keysUI.style.display = 'none';
-    } else {
-        btnVoice.classList.remove('active');
-        btnKeys.classList.add('active');
-        voiceUI.style.display = 'none';
-        keysUI.style.display = 'block';
-    }
-}
+        /* 2. Τα δύο επάνω κουμπιά */
+        .top-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 16px;
+        }
 
-// ATM Style μορφοποίηση (max 99.99)
-function formatAtm(input) {
-    let digits = input.value.replace(/\D/g, '');
-    if (!digits) {
-        input.value = "0.00";
-        return;
-    }
-    
-    let value = parseInt(digits, 10);
-    if (value > 9999) value = 9999; // Όριο 99.99
-    
-    let formatted = (value / 100).toFixed(2);
-    input.value = formatted;
-}
+        .toggle-btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #555;
+            color: white;
+            width: 45%;
+            font-weight: bold;
+        }
 
-// Αναγνώριση Φωνής (Web Speech API)
-function startSpeech() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-        alert("Η αναγνώριση φωνής δεν υποστηρίζεται.");
-        return;
-    }
+        .toggle-btn.active {
+            background-color: #0000ff; /* Μπλε για το ενεργό */
+        }
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'el-GR';
-    
-    const btn = document.querySelector('.voice-active-btn');
-    btn.innerText = "Ακούω...";
+        /* 3. Πλαίσιο Διεύθυνσης (Φωνή / Πλήκτρα) */
+        .input-container {
+            margin-bottom: 24px;
+        }
 
-    recognition.onresult = function(event) {
-        currentAddress = event.results[0][0].transcript;
-        btn.innerText = currentAddress;
-        document.getElementById('address-input').value = currentAddress;
-    };
+        .address-field {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            background: transparent;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            color: white;
+            box-sizing: border-box;
+        }
 
-    recognition.onerror = function() {
-        btn.innerText = "Αποτυχία. Δοκιμάστε ξανά";
-    };
+        .voice-active-btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            background-color: #333;
+            color: #00ff00;
+            border: 2px dashed #00ff00;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+        }
 
-    recognition.start();
-}
+        /* 4. Η σειρά με τα 4 πλαίσια (2/8 το καθένα = 25% πλάτος) */
+        .grid-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 24px;
+        }
 
-// Έναρξη Πλοήγησης και Αποθήκευση Δεδομένων
-function startNavigation() {
-    if (document.getElementById('keys-ui').style.display === 'block') {
-        currentAddress = document.getElementById('address-input').value;
-    }
+        .grid-item {
+            width: 25%;
+            display: flex;
+            flex-direction: column;
+        }
 
-    if (!currentAddress || currentAddress.trim() === "") {
-        alert("Παρακαλώ εισάγετε ή πείτε μια διεύθυνση πρώτα.");
-        return;
-    }
+        .grid-item label {
+            font-size: 12px;
+            margin-bottom: 6px;
+            color: #aaa;
+            text-align: center;
+        }
 
-    // Συλλογή των δεδομένων από τη φόρμα
-    const card = document.getElementById('card-amount').value;
-    const tips = document.getElementById('tips-amount').value;
-    const cash = document.getElementById('cash-amount').value;
-    const status = document.querySelector('input[name="status"]:checked').value; // hand ή end
+        .grid-item input[type="text"] {
+            width: 100%;
+            padding: 10px 4px;
+            font-size: 15px;
+            background: transparent;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            color: white;
+            box-sizing: border-box;
+            text-align: center;
+        }
 
-    // Δημιουργία αντικειμένου παραγγελίας
-    const orderData = {
-        id: Date.now(), // Μοναδικό ID με βάση την ώρα
-        address: currentAddress,
-        card: parseFloat(card),
-        tips: parseFloat(tips),
-        cash: parseFloat(cash),
-        status: status === 'hand' ? 'Χέρι' : 'Τέλος',
-        time: new Date().toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit' })
-    };
+        /* Επιλογέας Χέρι / Τέλος */
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+        }
 
-    // Φόρτωση παλιών παραγγελιών και προσθήκη της νέας
-    let history = JSON.parse(localStorage.getItem('delivery_history')) || [];
-    history.push(orderData);
-    localStorage.setItem('delivery_history', JSON.stringify(history));
+        .radio-label {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            cursor: pointer;
+            margin: 2px 0;
+        }
 
-    // Άνοιγμα Google Maps App
-    const encodedAddress = encodeURIComponent(currentAddress);
-    window.location.href = `google.navigation:q=${encodedAddress}`;
-}
+        .radio-label input {
+            margin-right: 4px;
+        }
+
+        /* 5. Μεγάλο Κουμπί: Έναρξη Πλοήγησης */
+        .nav-btn {
+            width: 100%;
+            height: 65px;
+            background-color: #00ff00;
+            color: black;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: auto; /* Σπρώχνει το κουμπί χαμηλά */
+        }
+
+        /* 6. Τελευταία Γραμμή (Παραγγελίες, Ταμείο, Ιστορικό) */
+        .footer-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 24px;
+            margin-bottom: 16px;
+        }
+
+        .footer-btn {
+            flex: 1;
+            padding: 14px 4px;
+            font-size: 14px;
+            background-color: #222;
+            color: white;
+            border: 1px solid #444;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Απόσταση 3 εκατοστών από την κορυφή -->
+    <div class="top-spacer"></div>
+
+    <!-- 2. Κουμπιά Φωνή / Πλήκτρα -->
+    <div class="top-buttons">
+        <button class="toggle-btn active" id="btn-voice" onclick="setMode('voice')">Φωνή</button>
+        <button class="toggle-btn" id="btn-keys" onclick="setMode('keys')">Πλήκτρα</button>
+    </div>
+
+    <!-- 3. Πλαίσιο Διεύθυνσης -->
+    <div class="input-container">
+        <!-- Περίπτωση Φωνής: Αναγνώριση φωνής -->
+        <div id="voice-ui">
+            <button class="voice-active-btn" onclick="startSpeech()">Πατήστε για Ομιλία</button>
+        </div>
+        <!-- Περίπτωση Πλήκτρων: Πληκτρολόγηση -->
+        <div id="keys-ui" style="display: none;">
+            <input type="text" id="address-input" class="address-field" placeholder="Γράψτε τη διεύθυνση εδώ...">
+        </div>
+    </div>
+
+    <!-- 4. Γραμμή Δεδομένων (4 πλαίσια από 2/8 πλάτος το καθένα) -->
+    <div class="grid-row">
+        <!-- Κάρτα (ATM Style max 99.99) -->
+        <div class="grid-item">
+            <label>Κάρτα</label>
+            <input type="text" id="card-amount" value="0.00" oninput="formatAtm(this)">
+        </div>
+
+        <!-- Tips (ATM Style max 99.99) -->
+        <div class="grid-item">
+            <label>Tips</label>
+            <input type="text" id="tips-amount" value="0.00" oninput="formatAtm(this)">
+        </div>
+
+        <!-- Επιλογέας (Χέρι / Τέλος - Προεπιλογή: Χέρι) -->
+        <div class="grid-item">
+            <div class="radio-group">
+                <label class="radio-label">
+                    <input type="radio" name="status" value="hand" checked> Χέρι
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="status" value="end"> Τέλος
+                </label>
+            </div>
+        </div>
+
+        <!-- Μετρητά (ATM Style max 99.99) -->
+        <div class="grid-item">
+            <label>Μετρητά</label>
+            <input type="text" id="cash-amount" value="0.00" oninput="formatAtm(this)">
+        </div>
+    </div>
+
+    <!-- 5. Μεγάλο Κουμπί: Έναρξη Πλοήγησης -->
+    <button class="nav-btn" onclick="startNavigation()">ΕΝΑΡΞΗ ΠΛΟΗΓΗΣΗΣ</button>
+
+    <!-- 6. Τελευταία Γραμμή -->
+    <div class="footer-buttons">
+        <button class="footer-btn" onclick="alert('Λειτουργία Παραγγελιών')">Παραγγελίες</button>
+        <button class="footer-btn" onclick="alert('Λειτουργία Ταμείου')">Ταμείο</button>
+        <button class="footer-btn" onclick="alert('Λειτουργία Ιστορικού')">Ιστορικό</button>
+    </div>
+
+    <script>
+        let currentAddress = "";
+
+        // Λειτουργία Εναλλαγής Φωνής / Πλήκτρων
+        function setMode(mode) {
+            const btnVoice = document.getElementById('btn-voice');
+            const btnKeys = document.getElementById('btn-keys');
+            const voiceUI = document.getElementById('voice-ui');
+            const keysUI = document.getElementById('keys-ui');
+
+            if (mode === 'voice') {
+                btnVoice.classList.add('active');
+                btnKeys.classList.remove('active');
+                voiceUI.style.display = 'block';
+                keysUI.style.display = 'none';
+            } else {
+                btnVoice.classList.remove('active');
+                btnKeys.classList.add('active');
+                voiceUI.style.display = 'none';
+                keysUI.style.display = 'block';
+            }
+        }
+
+        // ATM Style Μορφοποίηση (π.χ. πατάς 5 -> 0.05, max 99.99)
+        function formatAtm(input) {
+            let digits = input.value.replace(/\D/g, '');
+            if (!digits) {
+                input.value = "0.00";
+                return;
+            }
+            
+            let value = parseInt(digits, 10);
+            if (value > 9999) value = 9999; // Κλείδωμα στο 99.99
+            
+            let formatted = (value / 100).toFixed(2);
+            input.value = formatted;
+        }
+
+        // Αναγνώριση Φωνής στα Ελληνικά (Web Speech API)
+        function startSpeech() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Η αναγνώριση φωνής δεν υποστηρίζεται σε αυτό το πρόγραμμα περιήγησης/κινητό.");
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'el-GR'; // Ελληνικά
+            
+            const btn = document.querySelector('.voice-active-btn');
+            btn.innerText = "Ακούω...";
+
+            recognition.onresult = function(event) {
+                currentAddress = event.results[0][0].transcript;
+                btn.innerText = currentAddress;
+                document.getElementById('address-input').value = currentAddress;
+            };
+
+            recognition.onerror = function() {
+                btn.innerText = "Αποτυχία. Ξαναδοκιμάστε";
+            };
+
+            recognition.start();
+        }
+
+        // Έναρξη Πλοήγησης αποκλειστικά στην εφαρμογή Google Maps
+        function startNavigation() {
+            // Αν είμαστε σε λειτουργία πλήκτρων, διάβασε ό,τι πληκτρολογήθηκε
+            if (document.getElementById('keys-ui').style.display === 'block') {
+                currentAddress = document.getElementById('address-input').value;
+            }
+
+            if (!currentAddress || currentAddress.trim() === "") {
+                alert("Παρακαλώ βάλε ή πες μια διεύθυνση πρώτα.");
+                return;
+            }
+
+            // Δημιουργία Universal Link που ανοίγει απευθείας το Google Maps App στο Android
+            const encodedAddress = encodeURIComponent(currentAddress);
+            const mapsUrl = `https://google.com{encodedAddress}`;
+            
+            // Άνοιγμα των χαρτών
+            window.location.href = mapsUrl;
+        }
+    </script>
+</body>
+</html>
