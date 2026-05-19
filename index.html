@@ -2,280 +2,125 @@
 <html lang="el">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Πλοήγηση & Μενού</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Φωνητική Πλοήγηση</title>
     <style>
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
             margin: 0;
-            padding: 16px;
-            background-color: #222222; /* Σκούρο γκρίζο φόντο - κλίμακα 8/10 */
-            color: white;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            background-color: #f4f4f9;
         }
-        
-        /* Αρχική μετακίνηση της ροής προς τα κάτω κατά ~3,5 εκατοστά */
-        .app-container {
-            margin-top: 130px;
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-        }
-        
-        /* Η πάνω σειρά με τις 2 στήλες (Φωνή / Πλήκτρα) */
-        .top-row {
-            display: flex;
-            width: 100%;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        
-        /* Κοινό στυλ για τα πάνω μεγάλα κουμπιά και το κουμπί πλοήγησης */
-        .btn-main, .btn-navigate {
-            padding: 20px 0;
-            border: none;
-            border-radius: 12px;
-            font-size: 22px;
-            font-weight: bold;
-            cursor: pointer;
+        .container {
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            transition: transform 0.05s, background-color 0.2s;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 85%;
+            max-width: 400px;
         }
-
-        .top-row button {
-            flex: 1;
-        }
-
-        button:active, .btn-navigate:active {
-            transform: scale(0.96);
-        }
-
-        .btn-voice {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .btn-keyboard {
-            background-color: #444444;
-            color: white;
-            border: 1px solid #555555;
-        }
-
-        /* Η εισαγωγή διεύθυνσης - ΠΛΕΟΝ ΑΝΟΙΧΤΗ ΑΠΟ ΤΗΝ ΑΡΧΗ */
-        .input-container {
-            display: block;
-            margin-bottom: 16px;
-            width: 100%;
-        }
-
         input[type="text"] {
             width: 100%;
-            padding: 18px;
-            border: 2.5px solid #007bff;
-            border-radius: 12px;
-            font-size: 18px;
-            background-color: #111111;
-            color: white;
-        }
-
-        /* Πλέγμα 4 στηλών - ΠΛΕΟΝ ΑΝΟΙΧΤΟ ΑΠΟ ΤΗΝ ΑΡΧΗ */
-        .interaction-menu {
-            display: grid;
-            grid-template-columns: 2fr 2fr 2fr 3fr;
-            gap: 8px;
-            margin-bottom: 20px;
-            width: 100%;
-        }
-
-        .menu-col {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .menu-label {
-            font-size: 14px;
-            font-weight: bold;
-            color: #e0e0e0;
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Στυλ εισαγωγής για τα ποσά με αυτόματα δεκαδικά */
-        .amount-input {
-            width: 100%;
-            padding: 14px 4px;
-            border: 1px solid #555555;
-            border-radius: 10px;
+            padding: 12px;
+            margin: 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
             font-size: 16px;
-            background-color: #111111;
-            color: white;
-            text-align: center;
         }
-
-        /* Το κουμπί εναλλαγής Χέρι/Τέλος */
-        .btn-toggle {
+        button {
             width: 100%;
-            padding: 14px 0;
-            background-color: #ffc107;
-            color: #212529;
-            font-size: 15px;
+            padding: 12px;
+            margin: 8px 0;
             border: none;
-            border-radius: 10px;
-            font-weight: bold;
+            border-radius: 8px;
+            font-size: 16px;
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            text-align: center;
+            font-weight: bold;
+            transition: 0.2s;
         }
-
-        /* Το κουμπί πλοήγησης - ΠΛΕΟΝ ΑΝΟΙΧΤΟ ΑΠΟ ΤΗΝ ΑΡΧΗ */
-        .btn-navigate {
-            background-color: #28a745;
+        .btn-speak {
+            background-color: #2196F3;
             color: white;
-            width: 100%;
-            display: block;
+        }
+        .btn-navigate {
+            background-color: #4CAF50;
+            color: white;
+            margin-top: 20px;
+        }
+        button:active {
+            transform: scale(0.98);
         }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <!-- 1. Τα δύο πλήκτρα δίπλα-δίπλα -->
-    <div class="top-row">
-        <button class="btn-main btn-voice" id="voiceBtn">🎤 Φωνή</button>
-        <button class="btn-main btn-keyboard" id="keyboardBtn">⌨️ Πλήκτρα</button>
-    </div>
-
-    <!-- 2. Η εισαγωγή διεύθυνσης (Μόνιμα ορατή) -->
-    <div class="input-container" id="inputContainer">
-        <input type="text" id="addressInput" placeholder="Εισάγετε διεύθυνση...">
-    </div>
-
-    <!-- 3. Το Μενού Αλληλεπίδρασης (Μόνιμα ορατό) -->
-    <div class="interaction-menu" id="interactionMenu">
-        
-        <!-- Στήλη 1: Κάρτα (2/9) -->
-        <div class="menu-col">
-            <span class="menu-label">💳 Κάρτα</span>
-            <input type="text" inputmode="numeric" class="amount-input" id="cardInput" value="0.00" oninput="formatATM(this)">
-        </div>
-
-        <!-- Στήλη 2: Tips (2/9) -->
-        <div class="menu-col">
-            <span class="menu-label">🪙 Tips</span>
-            <input type="text" inputmode="numeric" class="amount-input" id="tipsInput" value="0.00" oninput="formatATM(this)">
-        </div>
-
-        <!-- Στήλη 3: Χέρι / Τέλος (2/9) -->
-        <div class="menu-col">
-            <span class="menu-label">⚙️</span>
-            <button class="btn-toggle" id="toggleBtn">Χέρι</button>
-        </div>
-
-        <!-- Στήλη 4: Μετρητά (3/9) -->
-        <div class="menu-col">
-            <span class="menu-label">💵 Μετρητά</span>
-            <input type="text" inputmode="numeric" class="amount-input" id="cashInput" value="0.00" oninput="formatATM(this)">
-        </div>
-
-    </div>
-
-    <!-- 4. Η έναρξη πλοήγησης (Μόνιμα ορατή) -->
-    <button class="btn-navigate" id="navigateBtn">🚀 Έναρξη Πλοήγησης</button>
+<div class="container">
+    <h2>Πλοήγηση Google Maps</h2>
+    
+    <!-- Πεδίο εισαγωγής διεύθυνσης -->
+    <input type="text" id="addressInput" placeholder="Πληκτρολογήστε διεύθυνση...">
+    
+    <!-- Κουμπί για το Μικρόφωνο -->
+    <button class="btn-speak" id="speakBtn">🎤 Εκφώνηση Διεύθυνσης</button>
+    
+    <!-- Κουμπί για Έναρξη Πλοήγησης -->
+    <button class="btn-navigate" id="navigateBtn">Έναρξη Πλοήγησης</button>
 </div>
 
 <script>
-    const voiceBtn = document.getElementById('voiceBtn');
-    const keyboardBtn = document.getElementById('keyboardBtn');
     const addressInput = document.getElementById('addressInput');
-    const toggleBtn = document.getElementById('toggleBtn');
+    const speakBtn = document.getElementById('speakBtn');
     const navigateBtn = document.getElementById('navigateBtn');
 
-    // Λειτουργία ATM: Μετατρέπει την πληκτρολόγηση σε αυτόματα δεκαδικά με μέγιστο το 99.99
-    function formatATM(input) {
-        let digits = input.value.replace(/\D/g, '');
-        if (!digits) {
-            input.value = "0.00";
-            return;
-        }
-        let numericValue = parseInt(digits, 10) / 100;
-        if (numericValue > 99.99) {
-            numericValue = 99.99;
-        }
-        input.value = numericValue.toFixed(2);
-    }
-
-    // Εναλλαγή κουμπιού Tips μεταξύ Χέρι και Τέλος
-    toggleBtn.addEventListener('click', () => {
-        if (toggleBtn.textContent === "Χέρι") {
-            toggleBtn.textContent = "Τέλος";
-            toggleBtn.style.backgroundColor = "#dc3545";
-            toggleBtn.style.color = "white";
-        } else {
-            toggleBtn.textContent = "Χέρι";
-            toggleBtn.style.backgroundColor = "#ffc107";
-            toggleBtn.style.color = "#212529";
-        }
-    });
-
-    // Ρύθμιση Φωνητικής Αναγνώρισης
+    // 1. Λειτουργία Φωνητικής Αναγνώρισης (Web Speech API)
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition;
-
+    
     if (SpeechRecognition) {
-        recognition = new SpeechRecognition();
-        recognition.lang = 'el-GR';
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'el-GR'; // Ορισμός Ελληνικής γλώσσας
         recognition.interimResults = false;
 
-        recognition.onstart = () => {
-            voiceBtn.style.backgroundColor = "#dc3545";
-            voiceBtn.textContent = "🛑 Ακούω...";
-        };
+        speakBtn.addEventListener('click', () => {
+            recognition.start();
+            speakBtn.textContent = "🎤 Σας ακούω...";
+        });
 
         recognition.onresult = (event) => {
-            // Αυτόματη εισαγωγή της φωνής στο κύριο πεδίο της διεύθυνσης
             const transcript = event.results[0][0].transcript;
             addressInput.value = transcript;
+            speakBtn.textContent = "🎤 Εκφώνηση Διεύθυνσης";
         };
 
-        recognition.onerror = () => { resetVoiceButton(); };
-        recognition.onend = () => { resetVoiceButton(); };
+        recognition.onerror = () => {
+            alert("Παρουσιάστηκε σφάλμα στη φωνητική αναγνώριση.");
+            speakBtn.textContent = "🎤 Εκφώνηση Διεύθυνσης";
+        };
+
+        recognition.onend = () => {
+            speakBtn.textContent = "🎤 Εκφώνηση Διεύθυνσης";
+        };
     } else {
-        voiceBtn.style.display = 'none';
+        speakBtn.style.display = 'none';
+        alert("Η φωνητική αναγνώριση δεν υποστηρίζεται σε αυτόν τον browser. Χρησιμοποιήστε Google Chrome στο Android.");
     }
 
-    function resetVoiceButton() {
-        voiceBtn.style.backgroundColor = "#007bff";
-        voiceBtn.textContent = "🎤 Φωνή";
-    }
-
-    // Κουμπί Φωνή
-    voiceBtn.addEventListener('click', () => {
-        if (SpeechRecognition) { recognition.start(); }
-    });
-
-    // Κουμπί Πλήκτρα: Απλά μεταφέρει το focus στο πεδίο κειμένου για να ανοίξει το πληκτρολόγιο
-    keyboardBtn.addEventListener('click', () => {
-        addressInput.focus();
-    });
-
-    // Κουμπί Έναρξη Πλοήγησης
+    // 2. Άνοιγμα Google Maps για Android (Deep Linking / Intent)
     navigateBtn.addEventListener('click', () => {
         const address = addressInput.value.trim();
         if (address !== "") {
-            window.location.href = `google.navigation:q=${encodeURIComponent(address)}`;
+            // Το ειδικό URL (Intent) που αναγκάζει το Android να ανοίξει την εφαρμογή Google Maps σε λειτουργία πλοήγησης
+            const mapsUrl = `google.navigation:q=${encodeURIComponent(address)}`;
+            
+            // Δοκιμή ανοίγματος της εφαρμογής
+            window.location.href = mapsUrl;
         } else {
-            alert("Παρακαλώ εισάγετε διεύθυνση.");
+            alert("Παρακαλώ εισάγετε ή εκφωνήστε μια διεύθυνση.");
         }
     });
 </script>
