@@ -21,7 +21,7 @@
             flex-direction: column;
         }
         
-        /* Μετακίνηση της ροής προς τα κάτω κατά ~3,5 εκατοστά */
+        /* Αρχική μετακίνηση της ροής προς τα κάτω κατά ~3,5 εκατοστά */
         .app-container {
             margin-top: 130px;
             display: flex;
@@ -69,9 +69,9 @@
             border: 1px solid #555555;
         }
 
-        /* Η εισαγωγή διεύθυνσης */
+        /* Η εισαγωγή διεύθυνσης - ΠΛΕΟΝ ΑΝΟΙΧΤΗ ΑΠΟ ΤΗΝ ΑΡΧΗ */
         .input-container {
-            display: none;
+            display: block;
             margin-bottom: 16px;
             width: 100%;
         }
@@ -86,9 +86,9 @@
             color: white;
         }
 
-        /* Πλέγμα 4 στηλών σε μία γραμμή με αναλογίες 2/9, 2/9, 2/9, 3/9 */
+        /* Πλέγμα 4 στηλών - ΠΛΕΟΝ ΑΝΟΙΧΤΟ ΑΠΟ ΤΗΝ ΑΡΧΗ */
         .interaction-menu {
-            display: none;
+            display: grid;
             grid-template-columns: 2fr 2fr 2fr 3fr;
             gap: 8px;
             margin-bottom: 20px;
@@ -138,12 +138,12 @@
             text-align: center;
         }
 
-        /* Το κουμπί πλοήγησης */
+        /* Το κουμπί πλοήγησης - ΠΛΕΟΝ ΑΝΟΙΧΤΟ ΑΠΟ ΤΗΝ ΑΡΧΗ */
         .btn-navigate {
             background-color: #28a745;
             color: white;
             width: 100%;
-            display: none;
+            display: block;
         }
     </style>
 </head>
@@ -156,12 +156,12 @@
         <button class="btn-main btn-keyboard" id="keyboardBtn">⌨️ Πλήκτρα</button>
     </div>
 
-    <!-- 2. Η εισαγωγή διεύθυνσης από κάτω -->
+    <!-- 2. Η εισαγωγή διεύθυνσης (Μόνιμα ορατή) -->
     <div class="input-container" id="inputContainer">
         <input type="text" id="addressInput" placeholder="Εισάγετε διεύθυνση...">
     </div>
 
-    <!-- 3. Το Μενού Αλληλεπίδρασης σε 1 Γραμμή / 4 Στήλες (2/9, 2/9, 2/9, 3/9) -->
+    <!-- 3. Το Μενού Αλληλεπίδρασης (Μόνιμα ορατό) -->
     <div class="interaction-menu" id="interactionMenu">
         
         <!-- Στήλη 1: Κάρτα (2/9) -->
@@ -190,39 +190,28 @@
 
     </div>
 
-    <!-- 4. Η έναρξη πλοήγησης -->
+    <!-- 4. Η έναρξη πλοήγησης (Μόνιμα ορατή) -->
     <button class="btn-navigate" id="navigateBtn">🚀 Έναρξη Πλοήγησης</button>
 </div>
 
 <script>
     const voiceBtn = document.getElementById('voiceBtn');
     const keyboardBtn = document.getElementById('keyboardBtn');
-    const inputContainer = document.getElementById('inputContainer');
     const addressInput = document.getElementById('addressInput');
-    const interactionMenu = document.getElementById('interactionMenu');
-    const navigateBtn = document.getElementById('navigateBtn');
     const toggleBtn = document.getElementById('toggleBtn');
+    const navigateBtn = document.getElementById('navigateBtn');
 
     // Λειτουργία ATM: Μετατρέπει την πληκτρολόγηση σε αυτόματα δεκαδικά με μέγιστο το 99.99
     function formatATM(input) {
-        // Κρατάμε μόνο τα ψηφία
         let digits = input.value.replace(/\D/g, '');
-        
-        // Αν σβήσει τελείως, βάζουμε 0.00
         if (!digits) {
             input.value = "0.00";
             return;
         }
-
-        // Μετατροπή σε αριθμό (π.χ. "45" -> 45 λεπτά -> 0.45)
         let numericValue = parseInt(digits, 10) / 100;
-
-        // Περιορισμός στο μέγιστο 99.99
         if (numericValue > 99.99) {
             numericValue = 99.99;
         }
-
-        // Εμφάνιση με 2 δεκαδικά ψηφία
         input.value = numericValue.toFixed(2);
     }
 
@@ -239,6 +228,7 @@
         }
     });
 
+    // Ρύθμιση Φωνητικής Αναγνώρισης
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition;
 
@@ -253,9 +243,9 @@
         };
 
         recognition.onresult = (event) => {
-            const transcript = event.results[transcript] || event.results[0][0].transcript;
+            // Αυτόματη εισαγωγή της φωνής στο κύριο πεδίο της διεύθυνσης
+            const transcript = event.results[0][0].transcript;
             addressInput.value = transcript;
-            showRemainingUI();
         };
 
         recognition.onerror = () => { resetVoiceButton(); };
@@ -269,25 +259,23 @@
         voiceBtn.textContent = "🎤 Φωνή";
     }
 
-    function showRemainingUI() {
-        inputContainer.style.display = "block";
-        interactionMenu.style.display = "grid";
-        navigateBtn.style.display = "block";
-    }
-
+    // Κουμπί Φωνή
     voiceBtn.addEventListener('click', () => {
         if (SpeechRecognition) { recognition.start(); }
     });
 
+    // Κουμπί Πλήκτρα: Απλά μεταφέρει το focus στο πεδίο κειμένου για να ανοίξει το πληκτρολόγιο
     keyboardBtn.addEventListener('click', () => {
-        showRemainingUI();
         addressInput.focus();
     });
 
+    // Κουμπί Έναρξη Πλοήγησης
     navigateBtn.addEventListener('click', () => {
         const address = addressInput.value.trim();
         if (address !== "") {
             window.location.href = `google.navigation:q=${encodeURIComponent(address)}`;
+        } else {
+            alert("Παρακαλώ εισάγετε διεύθυνση.");
         }
     });
 </script>
