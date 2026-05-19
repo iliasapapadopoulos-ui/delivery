@@ -21,9 +21,9 @@
             flex-direction: column;
         }
         
-        /* Αρχική μετακίνηση της ροής προς τα κάτω κατά ~5 εκατοστά */
+        /* Μετακίνηση της ροής προς τα κάτω κατά ~3,5 εκατοστά */
         .app-container {
-            margin-top: 190px;
+            margin-top: 130px;
             display: flex;
             flex-direction: column;
             width: 100%;
@@ -89,7 +89,7 @@
         /* Πλέγμα 4 στηλών σε μία γραμμή με αναλογίες 2/9, 2/9, 2/9, 3/9 */
         .interaction-menu {
             display: none;
-            grid-template-columns: 2fr 2fr 2fr 3fr; /* Οι αναλογίες των στηλών */
+            grid-template-columns: 2fr 2fr 2fr 3fr;
             gap: 8px;
             margin-bottom: 20px;
             width: 100%;
@@ -111,8 +111,8 @@
             text-overflow: ellipsis;
         }
 
-        /* Στυλ εισαγωγής αριθμών για τις στήλες */
-        input[type="number"] {
+        /* Στυλ εισαγωγής για τα ποσά με αυτόματα δεκαδικά */
+        .amount-input {
             width: 100%;
             padding: 14px 4px;
             border: 1px solid #555555;
@@ -123,7 +123,7 @@
             text-align: center;
         }
 
-        /* Το μικρότερο κουμπί εναλλαγής Χέρι/Τέλος */
+        /* Το κουμπί εναλλαγής Χέρι/Τέλος */
         .btn-toggle {
             width: 100%;
             padding: 14px 0;
@@ -167,13 +167,13 @@
         <!-- Στήλη 1: Κάρτα (2/9) -->
         <div class="menu-col">
             <span class="menu-label">💳 Κάρτα</span>
-            <input type="number" id="cardInput" placeholder="0.00" step="0.01" min="0" max="99.99" oninput="validateAmount(this)">
+            <input type="text" inputmode="numeric" class="amount-input" id="cardInput" value="0.00" oninput="formatATM(this)">
         </div>
 
         <!-- Στήλη 2: Tips (2/9) -->
         <div class="menu-col">
             <span class="menu-label">🪙 Tips</span>
-            <input type="number" id="tipsInput" placeholder="0.00" step="0.01" min="0" max="99.99" oninput="validateAmount(this)">
+            <input type="text" inputmode="numeric" class="amount-input" id="tipsInput" value="0.00" oninput="formatATM(this)">
         </div>
 
         <!-- Στήλη 3: Χέρι / Τέλος (2/9) -->
@@ -185,7 +185,7 @@
         <!-- Στήλη 4: Μετρητά (3/9) -->
         <div class="menu-col">
             <span class="menu-label">💵 Μετρητά</span>
-            <input type="number" id="cashInput" placeholder="0.00" step="0.01" min="0" max="99.99" oninput="validateAmount(this)">
+            <input type="text" inputmode="numeric" class="amount-input" id="cashInput" value="0.00" oninput="formatATM(this)">
         </div>
 
     </div>
@@ -203,18 +203,27 @@
     const navigateBtn = document.getElementById('navigateBtn');
     const toggleBtn = document.getElementById('toggleBtn');
 
-    // Περιορισμός εισαγωγής έως 99.99 και έως 2 δεκαδικά ψηφία
-    function validateAmount(input) {
-        let val = parseFloat(input.value);
-        if (val > 99.99) {
-            input.value = "99.99";
+    // Λειτουργία ATM: Μετατρέπει την πληκτρολόγηση σε αυτόματα δεκαδικά με μέγιστο το 99.99
+    function formatATM(input) {
+        // Κρατάμε μόνο τα ψηφία
+        let digits = input.value.replace(/\D/g, '');
+        
+        // Αν σβήσει τελείως, βάζουμε 0.00
+        if (!digits) {
+            input.value = "0.00";
+            return;
         }
-        if (input.value.includes('.')) {
-            const parts = input.value.split('.');
-            if (parts.length > 2) {
-                input.value = val.toFixed(2);
-            }
+
+        // Μετατροπή σε αριθμό (π.χ. "45" -> 45 λεπτά -> 0.45)
+        let numericValue = parseInt(digits, 10) / 100;
+
+        // Περιορισμός στο μέγιστο 99.99
+        if (numericValue > 99.99) {
+            numericValue = 99.99;
         }
+
+        // Εμφάνιση με 2 δεκαδικά ψηφία
+        input.value = numericValue.toFixed(2);
     }
 
     // Εναλλαγή κουμπιού Tips μεταξύ Χέρι και Τέλος
@@ -244,7 +253,7 @@
         };
 
         recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
+            const transcript = event.results[transcript] || event.results[0][0].transcript;
             addressInput.value = transcript;
             showRemainingUI();
         };
@@ -262,7 +271,7 @@
 
     function showRemainingUI() {
         inputContainer.style.display = "block";
-        interactionMenu.style.display = "grid"; /* Ενεργοποίηση CSS Grid */
+        interactionMenu.style.display = "grid";
         navigateBtn.style.display = "block";
     }
 
