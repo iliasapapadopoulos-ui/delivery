@@ -2,459 +2,128 @@
 <html lang="el">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Delivery App - Seamless Voice Input</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Φωνητική Πλοήγηση</title>
     <style>
-        body { font-family: sans-serif; background: #1a202c; padding: 15px; color: #e2e8f0; padding-bottom: 90px; display: flex; flex-direction: column; align-items: center; }
-        .app-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; }
-        .mode-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
-        .selector-btn { height: 50px; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: bold; color: white; cursor: pointer; background: #4a5568; border: 1px solid #718096; }
-        .selector-btn.active { background: #805ad5; border-color: #9f7aea; }
-        .input-panel { background: #000000; padding: 20px; border-radius: 12px; width: 100%; box-sizing: border-box; border: 2px solid #805ad5; }
-        .btn-mic { width: 100%; height: 65px; background: #805ad5; color: white; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; }
-        .btn-mic.listening { background: #e53e3e; animation: pulse 1.2s infinite; }
-        .instructions-box { margin-top: 15px; background: #1a202c; padding: 12px; border-radius: 8px; border-left: 4px solid #805ad5; font-size: 0.9rem; }
-        .instructions-box ol { padding-left: 20px; margin: 5px 0 0 0; color: #cbd5e0; }
-        .status-text { margin-top: 10px; font-size: 0.95rem; color: #ecc94b; font-style: italic; text-align: center; font-weight: bold; }
-        .manual-form { display: none; flex-direction: column; gap: 12px; }
-        .input-field { width: 100%; height: 45px; padding: 0 12px; box-sizing: border-box; border: 2px solid #4a5568; background: #1a202c; color: white; border-radius: 10px; font-size: 1.1rem; outline: none; }
-        .input-field::placeholder { color: #a0aec0; }
-        .voice-price-step { display: none; flex-direction: column; gap: 12px; margin-top: 15px; border-top: 1px solid #4a5568; padding-top: 15px; }
-        .quick-pay-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .btn-quick-pay { height: 55px; border: none; border-radius: 12px; font-size: 1.3rem; font-weight: 900; color: white; cursor: pointer; }
-        .btn-card-trigger { background: #2b6cb0; }
-        .btn-cash-trigger { background: #2f855a; }
-        .section-title { font-size: 1.4rem; font-weight: bold; margin: 10px 0; color: #fff; width: 100%; border-bottom: 2px solid #4a5568; padding-bottom: 8px; }
-        .list-container { width: 100%; display: flex; flex-direction: column; gap: 12px; }
-        .app-page { display: none; width: 100%; flex-direction: column; gap: 15px; }
-        .app-page.active-page { display: flex; }
-        .order-card { background: #2d3748; padding: 20px; border-radius: 12px; border: 1px solid #4a5568; box-sizing: border-box; }
-        .order-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .address-title { font-size: 1.3rem; font-weight: bold; color: #fff; max-width: 70%; }
-        .pay-badge { padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; text-transform: uppercase; }
-        .pay-cash { background: #2f855a; color: white; }
-        .pay-card { background: #2b6cb0; color: white; }
-        .info-text { font-size: 17px; margin: 6px 0; color: #cbd5e0; }
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn { display: flex; align-items: center; justify-content: center; height: 50px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; color: white; text-decoration: none; cursor: pointer; }
-        .btn-maps { background: #1a73e8; }
-        .btn-speak { background: #4a5568; border: 1px solid #718096; }
-        .manage-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; border-top: 1px solid #4a5568; padding-top: 10px; }
-        .btn-done { background: #2f855a; height: 40px; }
-        .btn-cancel { background: #9b2c2c; height: 40px; }
-        .history-card { background: #2d3748; padding: 12px; border-radius: 8px; border-left: 5px solid #3182ce; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; }
-        .history-time { font-size: 0.8rem; color: #a0aec0; margin-top: 4px; }
-        .history-total-panel { background: #2d3748; padding: 15px; border-radius: 12px; border: 1px solid #4a5568; display: flex; flex-direction: column; gap: 10px; }
-        .register-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .register-title { font-size: 1.1rem; color: #a0aec0; font-weight: bold; }
-        .register-amount { font-size: 1.4rem; color: #48bb78; font-weight: 800; }
-        .btn-reset-shift { width: 100%; height: 45px; background: #e53e3e; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem; cursor: pointer; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #2d3748; border-top: 2px solid #4a5568; padding: 10px 0; display: flex; justify-content: space-around; max-width: 420px; margin: 0 auto; z-index: 200; }
-        .nav-item { background: none; border: none; color: #a0aec0; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 33%; }
-        .nav-item.active-nav { color: #805ad5; }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 500; justify-content: center; align-items: center; padding: 20px; }
-        .modal-box { background: #000000; padding: 20px; border-radius: 12px; border: 2px solid #805ad5; width: 100%; max-width: 350px; text-align: center; display: flex; flex-direction: column; gap: 14px; box-sizing: border-box; }
-        .modal-title { font-size: 1.3rem; font-weight: bold; color: #fff; text-align: center; }
-        .modal-btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .modal-btn { height: 55px; border: none; border-radius: 10px; font-size: 1.2rem; font-weight: bold; color: white; cursor: pointer; }
-        .btn-export-sheets { width: 100%; height: 55px; background: #38a169; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 85%;
+            max-width: 400px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .btn-speak {
+            background-color: #2196F3;
+            color: white;
+        }
+        .btn-navigate {
+            background-color: #4CAF50;
+            color: white;
+            margin-top: 20px;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <!-- 📦 ΟΘΟΝΗ 1: ΠΑΡΑΓΓΕΛΙΕΣ -->
-        <div id="page-orders" class="app-page active-page">
-            <div class="mode-selector">
-                <button class="selector-btn active" id="mode-voice" onclick="switchMode('voice')">🎤 Φωνή</button>
-                <button class="selector-btn" id="mode-manual" onclick="switchMode('manual')">⌨️ Πληκτρολόγηση</button>
-            </div>
-            
-            <div class="input-panel">
-                <!-- ΦΩΝΗΤΙΚΗ ΕΙΣΑΓΩΓΗ -->
-                <div id="voice-container">
-                    <button class="btn-mic" id="mic-btn" onclick="toggleListening()">🎤 Εκφώνηση Διεύθυνσης</button>
-                    <div class="instructions-box">
-                        <ol>
-                            <li>Πείτε μόνο: <strong>Διεύθυνση</strong></li>
-                            <li>Πληκτρολογήστε ποσό και πατήστε POS ή Μετρητά.</li>
-                        </ol>
-                    </div>
-                    <div class="status-text" id="speech-output">Πατήστε το κουμπί για να ξεκινήσετε.</div>
-                    
-                    <!-- Πίνακας Ποσού -->
-                    <div id="voice-price-panel" class="voice-price-step">
-                        <input type="text" inputmode="decimal" id="voice-form-price" class="input-field" placeholder="Εισάγετε Ποσό (π.χ. 12.50)" style="border-color: #805ad5;">
-                        <div class="quick-pay-group">
-                            <button class="btn-quick-pay btn-card-trigger" onclick="submitVoiceOrder('POS')">POS</button>
-                            <button class="btn-quick-pay btn-cash-trigger" onclick="submitVoiceOrder('Μετρητά')">Μετρητά</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- ΧΕΙΡΟΚΙΝΗΤΗ ΕΙΣΑΓΩΓΗ -->
-                <div id="manual-container" class="manual-form">
-                    <input type="text" id="form-address" class="input-field" placeholder="Διεύθυνση (π.χ. Παύλου Μελά 22)">
-                    <input type="text" inputmode="decimal" id="form-price" class="input-field" placeholder="Ποσό Παραγγελίας (π.χ. 17.57)">
-                    <div class="quick-pay-group">
-                        <button class="btn-quick-pay btn-card-trigger" onclick="submitQuickManual('POS')">POS</button>
-                        <button class="btn-quick-pay btn-cash-trigger" onclick="submitQuickManual('Μετρητά')">Μετρητά</button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="section-title">Ενεργές Παραγγελίες</div>
-            <div id="active-orders-list" class="list-container"></div>
-        </div>
+<div class="container">
+    <h2>Πλοήγηση Google Maps</h2>
+    
+    <!-- Πεδίο εισαγωγής διεύθυνσης -->
+    <input type="text" id="addressInput" placeholder="Πληκτρολογήστε διεύθυνση...">
+    
+    <!-- Κουμπί για το Μικρόφωνο -->
+    <button class="btn-speak" id="speakBtn">🎤 Εκφώνηση Διεύθυνσης</button>
+    
+    <!-- Κουμπί για Έναρξη Πλοήγησης -->
+    <button class="btn-navigate" id="navigateBtn">Έναρξη Πλοήγησης</button>
+</div>
 
-        <!-- 💰 ΟΘΟΝΗ 2: ΤΑΜΕΙΟ -->
-        <div id="page-register" class="app-page">
-            <div class="section-title">Σύνολα Βάρδιας</div>
-            <div class="history-total-panel">
-                <div class="register-row">
-                    <span class="register-title" style="color: #ecc94b;">Παραδόσεις (Σύνολο):</span>
-                    <span class="register-amount" id="total-orders-count" style="color: #ecc94b;">0</span>
-                </div>
-                <div class="register-row">
-                    <span class="register-title">Μετρητά στο χέρι:</span>
-                    <span class="register-amount" id="total-cash">0.00 €</span>
-                </div>
-                <div class="register-row">
-                    <span class="register-title">Κάρτες (POS):</span>
-                    <span class="register-amount" id="total-cards" style="color: #4299e1;">0.00 €</span>
-                </div>
-                <div class="register-row" style="border-top: 1px solid #4a5568; padding-top: 5px;">
-                    <span class="register-title" style="color: #a0aec0; font-size: 0.95rem;">Tips (Χεράτο):</span>
-                    <span class="register-amount" id="total-tips-xerato" style="color: #cbd5e0; font-size: 1.2rem;">0.00 €</span>
-                </div>
-                <div class="register-row">
-                    <span class="register-title" style="color: #a0aec0; font-size: 0.95rem;">Tips (Στο Τέλος):</span>
-                    <span class="register-amount" id="total-tips-telos" style="color: #cbd5e0; font-size: 1.2rem;">0.00 €</span>
-                </div>
-                <div class="register-row" style="border-top: 2px solid #4a5568; padding-top: 10px;">
-                    <span class="register-title" style="color: #fff;">Ποσό Παράδοσης:</span>
-                    <span class="register-amount" id="total-all" style="color: #48bb78;">0.00 €</span>
-                </div>
-            </div>
-            <button class="btn-reset-shift" style="margin-top: 15px;" onclick="confirmResetShift()">🔴 Μηδενισμός Βάρδιας (Χ)</button>
-        </div>
+<script>
+    const addressInput = document.getElementById('addressInput');
+    const speakBtn = document.getElementById('speakBtn');
+    const navigateBtn = document.getElementById('navigateBtn');
 
-        <!-- 📜 ΟΘΟΝΗ 3: ΙΣΤΟΡΙΚΟ -->
-        <div id="page-history" class="app-page">
-            <div class="section-title">Ιστορικό Παραγγελμάτων</div>
-            <div id="history-list" class="list-container"></div>
-            <button class="btn-export-sheets" style="margin-top: 15px;" onclick="exportToCSV()">📊 Εξαγωγή σε CSV / Excel</button>
-        </div>
-    </div>
+    // 1. Λειτουργία Φωνητικής Αναγνώρισης (Web Speech API)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'el-GR'; // Ορισμός Ελληνικής γλώσσας
+        recognition.interimResults = false;
 
-    <!-- 🧭 ΜΠΑΡΑ ΠΛΟΗΓΗΣΗΣ -->
-    <nav class="bottom-nav">
-        <button class="nav-item active-nav" id="nav-orders" onclick="navigateTo('orders')">📦 <span>Παραγγελίες</span></button>
-        <button class="nav-item" id="nav-register" onclick="navigateTo('register')">💰 <span>Ταμείο</span></button>
-        <button class="nav-item" id="nav-history" onclick="navigateTo('history')">📜 <span>Ιστορικό</span></button>
-    </nav>
-
-    <!-- 💰 ΜΑΥΡΟ MODAL ΓΙΑ TIPS -->
-    <div id="tips-modal" class="modal-overlay">
-        <div class="modal-box">
-            <div class="modal-title">💸 Εισαγωγή Φιλοδωρήματος</div>
-            <input type="text" inputmode="decimal" id="tips-amount-input" class="input-field" value="0" style="border-color: #805ad5; text-align: center; font-size: 1.5rem; height: 50px;">
-            <div class="modal-btn-group" id="tips-modal-buttons">
-                <button class="modal-btn" style="background: #2f855a;" onclick="submitTips('Χεράτο')">Χεράτο</button>
-                <button class="modal-btn" style="background: #2b6cb0;" onclick="submitTips('Στο Τέλος')">Στο Τέλος</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ⚠️ MODAL ΕΠΙΒΕΒΑΙΩΣΗΣ ΜΗΔΕΝΙΣΜΟΥ -->
-    <div id="reset-modal" class="modal-overlay">
-        <div class="modal-box">
-            <div class="modal-title" style="color: #e53e3e;">Προσοχή!</div>
-            <p>Είστε σίγουροι ότι θέλετε να μηδενίσετε το ταμείο και το ιστορικό της βάρδιας;</p>
-            <div class="modal-btn-group">
-                <button class="modal-btn" style="background: #4a5568;" onclick="closeResetModal()">Ακύρωση</button>
-                <button class="modal-btn" style="background: #e53e3e;" onclick="resetShift()">Καθαρισμός</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 🧠 LOGIC SCRIPT -->
-    <script>
-        let orders = JSON.parse(localStorage.getItem('delivery_orders')) || [];
-        let isListening = false;
-        let recognition = null;
-        let tempVoiceAddress = "";
-        let currentOrderForTips = null;
-
-        document.addEventListener("DOMContentLoaded", () => {
-            initSpeechRecognition();
-            renderApp();
+        speakBtn.addEventListener('click', () => {
+            recognition.start();
+            speakBtn.textContent = "🎤 Σας ακούω...";
         });
 
-        function navigateTo(pageId) {
-            document.querySelectorAll('.app-page').forEach(page => page.classList.remove('active-page'));
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active-nav'));
-            const activePage = document.getElementById(`page-${pageId}`);
-            const activeNav = document.getElementById(`nav-${pageId}`);
-            if (activePage) activePage.classList.add('active-page');
-            if (activeNav) activeNav.classList.add('active-nav');
-            renderApp();
-        }
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            addressInput.value = transcript;
+            speakBtn.textContent = "🎤 Εκφώνηση Διεύθυνσης";
+        };
 
-        function switchMode(mode) {
-            document.querySelectorAll('.selector-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('voice-price-panel').style.display = 'none';
-            if (mode === 'voice') {
-                document.getElementById('mode-voice').classList.add('active');
-                document.getElementById('voice-container').style.display = 'block';
-                document.getElementById('manual-container').style.display = 'none';
-            } else {
-                document.getElementById('mode-manual').classList.add('active');
-                document.getElementById('voice-container').style.display = 'none';
-                document.getElementById('manual-container').style.display = 'flex';
-            }
-        }
+        recognition.onerror = () => {
+            alert("Παρουσιάστηκε σφάλμα στη φωνητική αναγνώριση.");
+            speakBtn.textContent = "🎤 Εκφώνηση Διεύθυνσης";
+        };
 
-        function saveOrders() {
-            localStorage.setItem('delivery_orders', JSON.stringify(orders));
-            renderApp();
-        }
+        recognition.onend = () => {
+            speakBtn.textContent = "🎤 Εκφώνηση Διεύθυνσης";
+        };
+    } else {
+        speakBtn.style.display = 'none';
+        alert("Η φωνητική αναγνώριση δεν υποστηρίζεται σε αυτόν τον browser. Χρησιμοποιήστε Google Chrome στο Android.");
+    }
 
-        function submitQuickManual(paymentType) {
-            const address = document.getElementById('form-address').value.trim();
-            const priceVal = document.getElementById('form-price').value.trim().replace(',', '.');
-            if (!address) return alert("Παρακαλώ εισάγετε διεύθυνση.");
-            const cleanPrice = parseFloat(priceVal) || 0;
-
-            orders.push({
-                id: Date.now(),
-                address: address,
-                name: "Δεν ορίστηκε",
-                price: cleanPrice,
-                payment: paymentType,
-                status: 'active',
-                tip: 0,
-                tipType: 'Κανένα',
-                timestamp: new Date().toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit' })
-            });
-            saveOrders();
-            document.getElementById('form-address').value = '';
-            document.getElementById('form-price').value = '';
-        }
-
-        function submitVoiceOrder(paymentType) {
-            const priceField = document.getElementById('voice-form-price');
-            const priceVal = parseFloat(priceField.value.replace(',', '.')) || 0;
-            if (!tempVoiceAddress) return alert("Δεν έχει καταγραφεί διεύθυνση.");
-
-            orders.push({
-                id: Date.now(),
-                address: tempVoiceAddress,
-                name: "Δεν ορίστηκε",
-                price: priceVal,
-                payment: paymentType,
-                status: 'active',
-                tip: 0,
-                tipType: 'Κανένα',
-                timestamp: new Date().toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit' })
-            });
-            saveOrders();
-            tempVoiceAddress = "";
-            priceField.value = "";
-            document.getElementById('voice-price-panel').style.display = 'none';
-            document.getElementById('speech-output').innerText = "Η παραγγελία αποθηκεύτηκε!";
-        }
-
-        function triggerDeliveryDone(id) {
-            currentOrderForTips = id;
-            const input = document.getElementById('tips-amount-input');
-            input.value = "0";
-
-            const order = orders.find(o => o.id === id);
-            const btnGroup = document.getElementById('tips-modal-buttons');
-
-            if (order && order.payment === 'Μετρητά') {
-                btnGroup.innerHTML = `<button class="modal-btn" style="background: #2f855a; grid-column: span 2;" onclick="submitTips('Χεράτο')">Χεράτο</button>`;
-            } else {
-                btnGroup.innerHTML = `
-                    <button class="modal-btn" style="background: #2f855a;" onclick="submitTips('Χεράτο')">Χεράτο</button>
-                    <button class="modal-btn" style="background: #2b6cb0;" onclick="submitTips('Στο Τέλος')">Στο Τέλος</button>
-                `;
-            }
-            document.getElementById('tips-modal').style.display = 'flex';
-            setTimeout(() => {
-                input.focus();
-                input.select(); 
-            }, 50);
-        }
-
-        function submitTips(type) {
-            const inputVal = document.getElementById('tips-amount-input').value.replace(',', '.');
-            const tipVal = parseFloat(inputVal) || 0;
-            const order = orders.find(o => o.id === currentOrderForTips);
-            if (order) {
-                order.status = 'done';
-                order.tip = tipVal;
-                order.tipType = order.payment === 'Μετρητά' ? 'Χεράτο' : type;
-                saveOrders();
-            }
-            document.getElementById('tips-modal').style.display = 'none';
-            currentOrderForTips = null;
-        }
-
-        function cancelOrder(id) {
-            const order = orders.find(o => o.id === id);
-            if (order) {
-                order.status = 'canceled';
-                order.tip = 0;
-                order.tipType = 'Κανένα';
-                saveOrders();
-            }
-        }
-
-        function speakOrder(address) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(address);
-                utterance.lang = 'el-GR';
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
-        function initSpeechRecognition() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                document.getElementById('speech-output').innerText = "Η αναγνώριση φωνής δεν υποστηρίζεται.";
-                return;
-            }
-            recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.lang = 'el-GR'; 
-            recognition.interimResults = false;
-
-            recognition.onstart = () => {
-                isListening = true;
-                document.getElementById('voice-price-panel').style.display = 'none';
-                document.getElementById('mic-btn').classList.add('listening');
-                document.getElementById('mic-btn').innerText = "🛑 Ακούω... Μιλήστε";
-            };
-
-            recognition.onend = () => {
-                isListening = false;
-                document.getElementById('mic-btn').classList.remove('listening');
-                document.getElementById('mic-btn').innerText = "🎤 Εκφώνηση Διεύθυνσης";
-            };
-
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript; // 🛠️ ΔΙΟΡΘΩΘΗΚΕ ΤΟ BUG ΕΔΩ
-                document.getElementById('speech-output').innerText = `Ακούστηκε: "${transcript}"`;
-                tempVoiceAddress = transcript.trim();
-                document.getElementById('voice-price-panel').style.display = 'flex';
-                document.getElementById('voice-form-price').focus();
-            };
-        }
-
-        function toggleListening() {
-            if (!recognition) return;
-            if (isListening) recognition.stop();
-            else recognition.start();
-        }
-
-        /* 🤖 ΑΠΟΚΛΕΙΣΤΙΚΟ ΑΝΟΙΓΜΑ NATIVE GOOGLE MAPS ΣΕ ANDROID */
-        function openAndroidNavigation(address) {
-            if (!address) return alert("Δεν υπάρχει έγκυρη διεύθυνση.");
-            const encodedAddress = encodeURIComponent(address);
-            window.location.href = `google.navigation:q=${encodedAddress}`;
-        }
-
-        function renderApp() {
-            const activeList = document.getElementById('active-orders-list');
-            const historyList = document.getElementById('history-list');
+    // 2. Άνοιγμα Google Maps για Android (Deep Linking / Intent)
+    navigateBtn.addEventListener('click', () => {
+        const address = addressInput.value.trim();
+        if (address !== "") {
+            // Το ειδικό URL (Intent) που αναγκάζει το Android να ανοίξει την εφαρμογή Google Maps σε λειτουργία πλοήγησης
+            const mapsUrl = `google.navigation:q=${encodeURIComponent(address)}`;
             
-            if (activeList) activeList.innerHTML = '';
-            if (historyList) historyList.innerHTML = '';
-
-            let cashTotal = 0;
-            let cardTotal = 0;
-            let tipsXerato = 0;
-            let tipsTelos = 0;
-            let deliveredCount = 0;
-
-            for (let i = orders.length - 1; i >= 0; i--) {
-                const order = orders[i];
-
-                if (order.status === 'done') {
-                    deliveredCount++;
-                    if (order.payment === 'Μετρητά') cashTotal += order.price;
-                    else cardTotal += order.price;
-
-                    if (order.tipType === 'Χεράτο') tipsXerato += order.tip;
-                    if (order.tipType === 'Στο Τέλος') tipsTelos += order.tip;
-                }
-
-                if (order.status === 'active') {
-                    if (activeList) {
-                        const card = document.createElement('div');
-                        card.className = 'order-card';
-                        card.innerHTML = `
-                            <div class="order-header">
-                                <div class="address-title">${order.address}</div>
-                                <span class="pay-badge ${order.payment === 'Μετρητά' ? 'pay-cash' : 'pay-card'}">${order.payment}</span>
-                            </div>
-                            <div class="info-text">💰 Ποσό: <strong>${order.price.toFixed(2)} €</strong></div>
-                            <div class="btn-group">
-                                <button class="btn btn-maps" onclick="openAndroidNavigation('${order.address.replace(/'/g, "\\'")}')">🗺️ Χάρτης</button>
-                                <button class="btn btn-speak" onclick="speakOrder('${order.address.replace(/'/g, "\\'")}')">🔊 Εκφώνηση</button>
-                            </div>
-                            <div class="manage-group">
-                                <button class="btn btn-done" onclick="triggerDeliveryDone(${order.id})">✔️ Παραδόθηκε</button>
-                                <button class="btn btn-cancel" onclick="cancelOrder(${order.id})">❌ Ακυρώθηκε</button>
-                            </div>
-                        `;
-                        activeList.appendChild(card);
-                    }
-                } else {
-                    if (historyList) {
-                        const item = document.createElement('div');
-                        item.className = 'history-card';
-                        item.style.borderLeftColor = order.status === 'done' ? '#48bb78' : '#e53e3e';
-                        item.innerHTML = `
-                            <div>
-                                <strong>${order.address}</strong> (${order.payment})
-                                <div class="history-time">Ώρα: ${order.timestamp} ${order.tip > 0 ? `| Tip: ${order.tip.toFixed(2)}€ (${order.tipType})` : ''}</div>
-                            </div>
-                            <div style="text-align: right; font-weight: bold; color: ${order.status === 'done' ? '#48bb78' : '#e53e3e'};">
-                                ${order.status === 'done' ? '✔️' : '❌'} ${order.price.toFixed(2)} €
-                            </div>
-                        `;
-                        historyList.appendChild(item);
-                    }
-                }
-            }
-
-            const tCount = document.getElementById('total-orders-count');
-            const tc = document.getElementById('total-cash');
-            const tcards = document.getElementById('total-cards');
-            const tx = document.getElementById('total-tips-xerato');
-            const tt = document.getElementById('total-tips-telos');
-            const tall = document.getElementById('total-all');
-            
-            if (tCount) tCount.innerText = deliveredCount;
-            if (tc) tc.innerText = `${cashTotal.toFixed(2)} €`;
-            if (tcards) tcards.innerText = `${cardTotal.toFixed(2)} €`;
-            if (tx) tx.innerText = `${tipsXerato.toFixed(2)} €`;
-            if (tt) tt.innerText = `${tipsTelos.toFixed(2)} €`;
-            if (tall) tall.innerText = `${(cashTotal - tipsTelos).toFixed(2)} €`;
+            // Δοκιμή ανοίγματος της εφαρμογής
+            window.location.href = mapsUrl;
+        } else {
+            alert("Παρακαλώ εισάγετε ή εκφωνήστε μια διεύθυνση.");
         }
+    });
+</script>
 
-        function confirmResetShift() { document.getElementById('reset-modal').style.display = 'flex'; }
-        function closeResetModal() { document.getElementById('reset-modal').style.display = 'none'; }
-        function resetShift() { orders = []; saveOrders(); closeResetModal(); navigateTo('orders'); }
-
-        function exportToCSV() {
-            if (orders.length === 0) return alert("Δεν υπάρχουν παραγγελίες.");
-            let csvContent = "\uFEFFΔιεύθυνση;Ποσό;Πληρωμή;Tips;Τύπος Tips;Κατάσταση;Ώρα\n";
-            orders.forEach(o => {
-                const statusText = o.status === 'done' ? 'Παραδόθηκε' : 'Ακυρώθηκε';
-                csvContent += `"${o.address}";"${o.price.toFixed(2)}";"${o.payment}";"${o.tip.toFixed(2)}";"${o.tipType}";"${statusText}";
+</body>
+</html>
