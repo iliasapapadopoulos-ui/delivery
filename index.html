@@ -3,46 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Φωνητική Πλοήγηση</title>
+    <title>Πλοήγηση</title>
     <style>
-        /* Ρυθμίσεις για οθόνη κινητού */
         * {
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent; /* Αφαιρεί το μπλε φλας στο πάτημα */
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             margin: 0;
             padding: 16px;
-            background-color: #f8f9fa;
+            background-color: #000000; /* Μαύρο φόντο */
             height: 100vh;
             display: flex;
             flex-direction: column;
         }
         
-        /* Η πάνω σειρά με τις 2 στήλες δίπλα-δίπλα */
+        /* Μετακίνηση των πλήκτρων προς τα κάτω κατά περίπου 5 εκατοστά (190px) */
         .top-row {
             display: flex;
             width: 100%;
             gap: 12px;
+            margin-top: 190px; 
             margin-bottom: 20px;
         }
         
-        /* Μεγάλα πλήκτρα αφής (Touch Targets) ιδανικά για κινητά */
         .top-row button {
             flex: 1;
-            padding: 20px 0; /* Πολύ μεγάλο ύψος για εύκολο πάτημα με τον αντίχειρα */
+            padding: 20px 0;
             border: none;
             border-radius: 12px;
-            font-size: 22px; /* Μεγάλη γραμματοσειρά */
+            font-size: 22px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px rgba(255,255,255,0.05);
             transition: transform 0.05s, background-color 0.2s;
         }
 
-        /* Εφέ πατήματος στην αφή */
         .top-row button:active, .btn-navigate:active {
             transform: scale(0.96);
         }
@@ -53,12 +51,11 @@
         }
 
         .btn-keyboard {
-            background-color: #e9ecef;
-            color: #212529;
-            border: 1px solid #ced4da;
+            background-color: #333333; /* Σκούρο γκρι για τα πλήκτρα */
+            color: white;
+            border: 1px solid #444444;
         }
 
-        /* Περιοχή εισαγωγής διεύθυνσης */
         .input-container {
             display: none;
             margin-bottom: 16px;
@@ -71,11 +68,10 @@
             border: 2.5px solid #007bff;
             border-radius: 12px;
             font-size: 18px;
-            background-color: white;
-            color: #212529;
+            background-color: #111111; /* Σκούρο πλαίσιο κειμένου */
+            color: white;
         }
 
-        /* Μεγάλο πράσινο κουμπί για πλοήγηση */
         .btn-navigate {
             background-color: #28a745;
             color: white;
@@ -87,30 +83,19 @@
             font-weight: bold;
             display: none;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        /* Κείμενο κατάστασης */
-        .status-text {
-            text-align: center;
-            font-size: 16px;
-            color: #495057;
-            margin-top: 20px;
-            font-weight: 600;
-            padding: 10px;
-            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
     </style>
 </head>
 <body>
 
-<!-- 2 Στήλες Δίπλα-Δίπλα στην κορυφή του κινητού -->
+<!-- Τα δύο πλήκτρα χαμηλωμένα στην οθόνη -->
 <div class="top-row">
     <button class="btn-voice" id="voiceBtn">🎤 Φωνή</button>
     <button class="btn-keyboard" id="keyboardBtn">⌨️ Πλήκτρα</button>
 </div>
 
-<!-- Πεδίο Κειμένου (Ανοίγει με τα Πλήκτρα ή μετά τη Φωνή) -->
+<!-- Πεδίο Κειμένου -->
 <div class="input-container" id="inputContainer">
     <input type="text" id="addressInput" placeholder="Εισάγετε διεύθυνση...">
 </div>
@@ -118,18 +103,13 @@
 <!-- Κουμπί Πλοήγησης -->
 <button class="btn-navigate" id="navigateBtn">🚀 Έναρξη Πλοήγησης</button>
 
-<!-- Μήνυμα Κατάστασης -->
-<div class="status-text" id="statusText"></div>
-
 <script>
     const voiceBtn = document.getElementById('voiceBtn');
     const keyboardBtn = document.getElementById('keyboardBtn');
     const inputContainer = document.getElementById('inputContainer');
     const addressInput = document.getElementById('addressInput');
     const navigateBtn = document.getElementById('navigateBtn');
-    const statusText = document.getElementById('statusText');
 
-    // Έλεγχος και ρύθμιση Web Speech API
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition;
 
@@ -139,25 +119,19 @@
         recognition.interimResults = false;
 
         recognition.onstart = () => {
-            statusText.textContent = "🔊 Μιλήστε τώρα, σας ακούω...";
-            statusText.style.backgroundColor = "#ffeeba";
             voiceBtn.style.backgroundColor = "#dc3545";
             voiceBtn.textContent = "🛑 Ακούω...";
         };
 
         recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript; // Διορθώθηκε η λήψη κειμένου
+            const transcript = event.results[0][0].transcript;
             addressInput.value = transcript;
-            statusText.textContent = `🎯 Ακούστηκε: "${transcript}"`;
-            statusText.style.backgroundColor = "#d4edda";
             
             inputContainer.style.display = "block";
             navigateBtn.style.display = "block";
         };
 
         recognition.onerror = () => {
-            statusText.textContent = "❌ Δεν ακούστηκε καλά. Ξαναπροσπαθήστε.";
-            statusText.style.backgroundColor = "#f8d7da";
             resetVoiceButton();
         };
 
@@ -166,7 +140,6 @@
         };
     } else {
         voiceBtn.style.display = 'none';
-        statusText.textContent = "⚠️ Ανοίξτε τη σελίδα από τον Google Chrome στο Android.";
     }
 
     function resetVoiceButton() {
@@ -174,29 +147,22 @@
         voiceBtn.textContent = "🎤 Φωνή";
     }
 
-    // Όταν πατάει "Φωνή"
     voiceBtn.addEventListener('click', () => {
         if (SpeechRecognition) {
             recognition.start();
         }
     });
 
-    // Όταν πατάει "Πλήκτρα"
     keyboardBtn.addEventListener('click', () => {
         inputContainer.style.display = "block";
         navigateBtn.style.display = "block";
-        addressInput.focus(); // Εμφανίζει αυτόματα το πληκτρολόγιο του κινητού
-        statusText.textContent = "Γράψτε τη διεύθυνση.";
-        statusText.style.backgroundColor = "#e2e3e5";
+        addressInput.focus();
     });
 
-    // Όταν πατάει "Έναρξη Πλοήγησης" -> Άνοιγμα Google Maps
     navigateBtn.addEventListener('click', () => {
         const address = addressInput.value.trim();
         if (address !== "") {
             window.location.href = `google.navigation:q=${encodeURIComponent(address)}`;
-        } else {
-            alert("Παρακαλώ γράψτε ή πείτε μια διεύθυνση.");
         }
     });
 </script>
